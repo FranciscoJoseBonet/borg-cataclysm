@@ -1,4 +1,6 @@
 .vscode
-execGeneration.txt
-videos-utiles.txt
-build
+/tools/
+/bin/
+/build/
+*.exe
+*.o
