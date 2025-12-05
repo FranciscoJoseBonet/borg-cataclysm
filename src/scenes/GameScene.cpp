@@ -15,12 +15,12 @@ void GameScene::update()
 {
     static sf::Clock deltaClock;
     float dt = deltaClock.restart().asSeconds();
-    player.update(dt);
+    spaceShip.update(dt);
 }
 
 void GameScene::render()
 {
     window.clear(sf::Color::Black);
-    window.draw(player);
+    window.draw(spaceShip);
     window.display();
 }

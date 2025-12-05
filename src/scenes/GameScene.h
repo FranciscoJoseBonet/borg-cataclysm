@@ -1,12 +1,12 @@
 #pragma once
 #include "Scene.h"
-#include "../entities/Player.h"
+#include "../entities/SpaceShip.h"
 
 class GameScene : public Scene
 {
 private:
     sf::RenderWindow &window;
-    Player player;
+    SpaceShip spaceShip;
     sf::Clock clock;
 
 public:

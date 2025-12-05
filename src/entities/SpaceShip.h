@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "Entity.h"
 
-class Player : public Entity
+class SpaceShip : public Entity
 {
 private:
     sf::Clock clock;
@@ -11,7 +11,7 @@ private:
     sf::Sprite sprite;
 
 public:
-    Player();
+    SpaceShip();
     void update(float deltaTime) override;
 
 private:

@@ -1,7 +1,8 @@
-#include "Player.h"
+#include "SpaceShip.h"
 #include <iostream>
+#include <string>
 
-Player::Player() : sprite(texture)
+SpaceShip::SpaceShip() : Entity(100.f, "Borg"), sprite(texture)
 {
     sf::Image img;
 
@@ -18,7 +19,7 @@ Player::Player() : sprite(texture)
     sprite.setPosition({615.f, 500.f});
 }
 
-void Player::update(float deltaTime)
+void SpaceShip::update(float deltaTime)
 {
     sf::Vector2f movement(0.f, 0.f);
 
@@ -37,7 +38,7 @@ void Player::update(float deltaTime)
     sprite.move(movement);
 }
 
-void Player::draw(sf::RenderTarget &target, sf::RenderStates states) const
+void SpaceShip::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
     target.draw(sprite, states);
 }
