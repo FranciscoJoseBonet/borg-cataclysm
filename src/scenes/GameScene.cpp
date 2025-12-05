@@ -15,7 +15,6 @@ void GameScene::update()
 {
     static sf::Clock deltaClock;
     float dt = deltaClock.restart().asSeconds();
-
     player.update(dt);
 }
 

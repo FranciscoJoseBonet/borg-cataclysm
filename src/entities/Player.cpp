@@ -22,16 +22,16 @@ void Player::update(float deltaTime)
 {
     sf::Vector2f movement(0.f, 0.f);
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
         movement.x -= speed * deltaTime;
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
         movement.x += speed * deltaTime;
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
         movement.y -= speed * deltaTime;
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
         movement.y += speed * deltaTime;
 
     sprite.move(movement);
