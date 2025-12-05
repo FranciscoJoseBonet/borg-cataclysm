@@ -1,8 +1,7 @@
 #include "SpaceShip.h"
 #include <iostream>
-#include <string>
 
-SpaceShip::SpaceShip() : Entity(100.f, "Borg"), sprite(texture)
+SpaceShip::SpaceShip() : Entity(100.f, "Federation"), sprite(texture)
 {
     sf::Image img;
 

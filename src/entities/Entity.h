@@ -23,8 +23,8 @@ public:
 
 protected:
     float health;
-    bool alive;
     std::string type;
+    bool alive;
 
     virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const override = 0;
 };

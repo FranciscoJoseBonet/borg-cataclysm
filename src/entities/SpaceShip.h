@@ -7,6 +7,7 @@ class SpaceShip : public Entity
 private:
     sf::Clock clock;
     float speed = 200.f;
+
     sf::Texture texture;
     sf::Sprite sprite;
 
