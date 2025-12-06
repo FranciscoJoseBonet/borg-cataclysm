@@ -5,7 +5,7 @@ SpaceShip::SpaceShip() : Entity(100.f, "Federation"), sprite(texture)
 {
     sf::Image img;
 
-    if (!img.loadFromFile("../assets/img/enterprise-001.JPG"))
+    if (!img.loadFromFile("../assets/img/enterprise-001.PNG"))
     {
         std::cerr << "No se pudo cargar la textura del jugador. Usando imagen temporal.\n";
         img = sf::Image({20, 20}, sf::Color::Red);
