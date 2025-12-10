@@ -1,6 +1,6 @@
 #pragma once
 #include "Scene.h"
-#include "../entities/SpaceShip.h"
+#include "../entities/ships/SpaceShip.h"
 
 class GameScene : public Scene
 {
