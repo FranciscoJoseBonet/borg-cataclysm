@@ -1,6 +1,8 @@
 #include "SpaceShip.h"
 #include <iostream>
 
+#include <vector>
+
 SpaceShip::SpaceShip() : Entity(100.f, "Federation"), sprite(texture)
 {
     sf::Image img;
@@ -20,7 +22,7 @@ SpaceShip::SpaceShip() : Entity(100.f, "Federation"), sprite(texture)
     sprite.setPosition({615.f, 500.f});
 }
 
-// Esta funcion mueve la entidad (no grafico)
+// Esta funcion actualiza la entidad (no grafico)
 void SpaceShip::update(float deltaTime)
 {
     sf::Vector2f movement(0.f, 0.f);
@@ -36,6 +38,17 @@ void SpaceShip::update(float deltaTime)
         movement.y += speed * deltaTime;
 
     move(movement);
+
+    // Para disparar (crea el disparo)
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::I))
+    {
+        Projectile *newShot = weapon->Shoot(sprite.getPosition());
+        projectiles.push_back(newShot);
+    }
+
+    // Actualizamos todos los proyectiles
+    for (auto *p : projectiles)
+        p->update(deltaTime);
 }
 
 // Esta funcion actualiza el dibujo de la entidad acorde a sus transformaciones
@@ -43,4 +56,7 @@ void SpaceShip::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
     states.transform *= getTransform();
     target.draw(sprite, states);
+
+    for (auto *p : projectiles)
+        target.draw(*p);
 }

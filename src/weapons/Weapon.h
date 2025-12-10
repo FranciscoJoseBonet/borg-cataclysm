@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "../entities/projectiles/Projectile.h"
 
 class Weapon
 {
@@ -14,9 +15,9 @@ public:
         : name(name), fireRate(fireRate), coolDown(cd) {}
     virtual ~Weapon() = default;
 
-    void Shoot() {}
+    Projectile *Shoot(const sf::Vector2f &startPos);
 
     std::string getName() const { return name; }
     float getFireRate() const { return fireRate; }
     float getCd() const { return coolDown; }
-}
+};

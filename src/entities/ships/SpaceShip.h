@@ -2,19 +2,30 @@
 #include <SFML/Graphics.hpp>
 #include "../Entity.h"
 
+// Added -------
+#include "../../weapons/Weapon.h"
+#include "../projectiles/Projectile.h"
+#include <vector>
+
 class SpaceShip : public Entity
 {
 private:
-    sf::Clock clock;
+    // Atts
     float speed = 200.f;
-
     sf::Texture texture;
     sf::Sprite sprite;
 
-public:
-    SpaceShip();
-    void update(float deltaTime) override;
+    // Added -------
+    Weapon *weapon;
+    std::vector<Projectile *> projectiles;
 
-private:
+    // Meths
     void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
+
+public:
+    // Const
+    SpaceShip();
+
+    // Meths
+    void update(float deltaTime) override;
 };
