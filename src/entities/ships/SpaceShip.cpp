@@ -1,7 +1,7 @@
 #include "SpaceShip.h"
 #include <iostream>
-
 #include <vector>
+#include "../../core/Game.h"
 
 SpaceShip::SpaceShip() : Entity(100.f, "Federation"), sprite(texture)
 {
@@ -18,8 +18,7 @@ SpaceShip::SpaceShip() : Entity(100.f, "Federation"), sprite(texture)
 
     sprite = sf::Sprite(texture);
 
-    // Posicion inicial
-    sprite.setPosition({615.f, 500.f});
+    this->weapon = new Weapon("Phaser", 5.f, 600.f, 10);
 }
 
 // Esta funcion actualiza la entidad (no grafico)
@@ -39,16 +38,26 @@ void SpaceShip::update(float deltaTime)
 
     move(movement);
 
-    // Para disparar (crea el disparo)
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::I))
+    if (weapon)
     {
-        Projectile *newShot = weapon->Shoot(sprite.getPosition());
-        projectiles.push_back(newShot);
+        weapon->update(deltaTime);
+    }
+    // crea el disparo
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::I) && weapon)
+    {
+        Projectile *newShot = weapon->Shoot(getPosition());
+
+        if (newShot != nullptr)
+        {
+            projectiles.push_back(newShot);
+        }
     }
 
-    // Actualizamos todos los proyectiles
     for (auto *p : projectiles)
-        p->update(deltaTime);
+    {
+        if (p)
+            p->update(deltaTime);
+    }
 }
 
 // Esta funcion actualiza el dibujo de la entidad acorde a sus transformaciones

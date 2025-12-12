@@ -1,8 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "../Entity.h"
-
-// Added -------
 #include "../../weapons/Weapon.h"
 #include "../projectiles/Projectile.h"
 #include <vector>
@@ -14,8 +12,6 @@ private:
     float speed = 200.f;
     sf::Texture texture;
     sf::Sprite sprite;
-
-    // Added -------
     Weapon *weapon;
     std::vector<Projectile *> projectiles;
 

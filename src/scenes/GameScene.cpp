@@ -1,6 +1,14 @@
 #include "GameScene.h"
+#include "../core/Game.h"
+#include "../entities/ships/SpaceShip.h"
 
-GameScene::GameScene(sf::RenderWindow &w) : window(w) {}
+GameScene::GameScene(sf::RenderWindow &w) : window(w)
+{
+
+    auto size = window.getSize();
+
+    spaceShip.setPosition({size.x / 2.f, (size.y / 2.f) + (size.y / 2.7f)});
+}
 
 void GameScene::handleEvents()
 {

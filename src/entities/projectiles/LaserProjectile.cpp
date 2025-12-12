@@ -22,7 +22,7 @@ Projectile::Projectile(sf::Vector2f direction, float speed, int damage)
 
     sprite = sf::Sprite(texture);
 
-    sprite.setPosition(getPosition());
+    sprite.setPosition(getPosition() + sf::Vector2f(14.5, 5.f));
     sprite.setScale({0.5f, 0.5f});
     float angle = std::atan2(direction.y, direction.x) * 180.f / 3.14159f;
     sprite.setRotation(sf::degrees(angle + 0.f));
