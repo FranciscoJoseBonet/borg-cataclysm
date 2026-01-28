@@ -1,32 +1,40 @@
 #include "SpaceShip.h"
 #include <iostream>
-#include <vector>
-#include "../../core/Game.h"
+#include "../../weapons/LaserLauncher.h"
+#include "../../weapons/MissileLauncher.h"
 
-SpaceShip::SpaceShip() : Entity(100.f, "Federation"), sprite(texture)
+SpaceShip::SpaceShip()
+    : Entity(100.f, "Federation")
 {
     sf::Image img;
-
     if (!img.loadFromFile("../assets/img/enterprise-001.PNG"))
     {
         std::cerr << "No se pudo cargar la textura del jugador\n";
-        img = sf::Image({20, 20}, sf::Color::Red); // Para evitar error por la carga de la imagen
+        img = sf::Image({20, 20}, sf::Color::Red);
     }
 
-    if (!texture.loadFromImage(img))
-        std::cerr << "No se pudo cargar textura desde imagen\n";
+    if (texture.loadFromImage(img))
+    {
+        sprite.emplace(texture);
 
-    sprite = sf::Sprite(texture);
+        auto bounds = sprite->getLocalBounds();
+        sprite->setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
+    }
 
-    this->weapon = new Weapon("Phaser", 5.f, 600.f, 10);
+    // Posición inicial visible
+    setPosition({540.f, 840.f});
+    if (sprite)
+        sprite->setPosition(getPosition());
+
+    weapon = new LaserLauncher("Phaser Bank", 5.f, 600.f, 10);
+    missileLauncher = new MissileLauncher("Photon Torpedo", 1.f, 100.f, 50);
 }
 
-// Esta funcion actualiza la entidad (no grafico)
 void SpaceShip::update(float deltaTime)
 {
+    // --- MOVIMIENTO ---
     sf::Vector2f movement(0.f, 0.f);
 
-    // Lo multiplico por el delta tiempo para que la velocidad sea uniforme e independiente de los fps
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
         movement.x -= speed * deltaTime;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
@@ -38,50 +46,67 @@ void SpaceShip::update(float deltaTime)
 
     move(movement);
 
-    sf::Vector2f pos = getPosition();
-    sf::FloatRect bounds = sprite.getGlobalBounds();
-
-    // Límites en X
-    if (pos.x < 0.f)
-        pos.x = 0.f;
-    else if (pos.x + bounds.size.x > 1080.f)
-        pos.x = 1080.f - bounds.size.x;
-
-    // Límites en Y
-    if (pos.y < 736.f)
-        pos.y = 736.f;
-    else if (pos.y + bounds.size.y > 920.f)
-        pos.y = 920.f - bounds.size.y;
-
-    setPosition(pos);
-
-    if (weapon)
+    // --- LÍMITES DE PANTALLA ---
+    if (sprite)
     {
-        weapon->update(deltaTime);
+        sf::Vector2f pos = getPosition();
+        auto bounds = sprite->getGlobalBounds();
+
+        if (pos.x < bounds.size.x / 2.f)
+            pos.x = bounds.size.x / 2.f;
+        else if (pos.x > 1080.f - bounds.size.x / 2.f)
+            pos.x = 1080.f - bounds.size.x / 2.f;
+
+        if (pos.y < bounds.size.y / 2.f)
+            pos.y = bounds.size.y / 2.f;
+        else if (pos.y > 920.f - bounds.size.y / 2.f)
+            pos.y = 920.f - bounds.size.y / 2.f;
+
+        setPosition(pos);
+        sprite->setPosition(pos);
     }
-    // crea el disparo
+
+    // --- ARMAS ---
+    if (weapon)
+        weapon->update(deltaTime);
+    if (missileLauncher)
+        missileLauncher->update(deltaTime);
+
+    // Láser (I)
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::I) && weapon)
     {
-        Projectile *newShot = weapon->Shoot(getPosition());
-
-        if (newShot != nullptr)
-        {
-            projectiles.push_back(newShot);
-        }
+        if (Projectile *shot = weapon->Shoot(getPosition()))
+            projectiles.push_back(shot);
     }
 
-    for (auto *p : projectiles)
+    // Misil (O)
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::O) && missileLauncher)
     {
-        if (p)
-            p->update(deltaTime);
+        if (Projectile *missile = missileLauncher->Shoot(getPosition()))
+            projectiles.push_back(missile);
+    }
+
+    // --- PROYECTILES ---
+    for (auto it = projectiles.begin(); it != projectiles.end();)
+    {
+        (*it)->update(deltaTime);
+
+        if ((*it)->getPosition().y < -50.f)
+        {
+            delete *it;
+            it = projectiles.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
     }
 }
 
-// Esta funcion actualiza el dibujo de la entidad acorde a sus transformaciones
 void SpaceShip::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
-    states.transform *= getTransform();
-    target.draw(sprite, states);
+    if (sprite)
+        target.draw(*sprite);
 
     for (auto *p : projectiles)
         target.draw(*p);

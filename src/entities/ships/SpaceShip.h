@@ -4,24 +4,23 @@
 #include "../../weapons/Weapon.h"
 #include "../projectiles/Projectile.h"
 #include <vector>
+#include <optional>
 
 class SpaceShip : public Entity
 {
 private:
-    // Atts
     float speed = 300.f;
     sf::Texture texture;
-    sf::Sprite sprite;
-    Weapon *weapon;
+    std::optional<sf::Sprite> sprite;
+
+    Weapon *weapon = nullptr;
+    Weapon *missileLauncher = nullptr;
     std::vector<Projectile *> projectiles;
 
-    // Meths
     void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
 public:
-    // Const
     SpaceShip();
 
-    // Meths
     void update(float deltaTime) override;
 };

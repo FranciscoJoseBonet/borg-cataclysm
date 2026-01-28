@@ -1,5 +1,5 @@
 #include "Weapon.h"
-#include "../entities/projectiles/Projectile.h" // Aquí sí incluimos el header completo
+#include "../entities/projectiles/Projectile.h"
 
 Weapon::Weapon(const std::string &name, float fireRate, float speed, int dmg)
     : name(name), projectileSpeed(speed), damage(dmg), currentCooldown(0.f)
