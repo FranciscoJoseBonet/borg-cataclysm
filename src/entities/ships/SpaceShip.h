@@ -9,7 +9,7 @@ class SpaceShip : public Entity
 {
 private:
     // Atts
-    float speed = 200.f;
+    float speed = 300.f;
     sf::Texture texture;
     sf::Sprite sprite;
     Weapon *weapon;

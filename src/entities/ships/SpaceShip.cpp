@@ -38,6 +38,23 @@ void SpaceShip::update(float deltaTime)
 
     move(movement);
 
+    sf::Vector2f pos = getPosition();
+    sf::FloatRect bounds = sprite.getGlobalBounds();
+
+    // Límites en X
+    if (pos.x < 0.f)
+        pos.x = 0.f;
+    else if (pos.x + bounds.size.x > 1080.f)
+        pos.x = 1080.f - bounds.size.x;
+
+    // Límites en Y
+    if (pos.y < 736.f)
+        pos.y = 736.f;
+    else if (pos.y + bounds.size.y > 920.f)
+        pos.y = 920.f - bounds.size.y;
+
+    setPosition(pos);
+
     if (weapon)
     {
         weapon->update(deltaTime);
