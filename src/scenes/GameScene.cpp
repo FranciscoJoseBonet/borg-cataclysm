@@ -6,8 +6,8 @@ GameScene::GameScene(sf::RenderWindow &w) : window(w)
 {
 
     auto size = window.getSize();
-
-    spaceShip.setPosition({size.x / 2.f, (size.y / 2.f) + (size.y / 2.7f)});
+    player = &manager.add<SpaceShip>();
+    player->setPosition({size.x / 2.f, (size.y / 2.f) + (size.y / 2.7f)});
 }
 
 void GameScene::handleEvents()
@@ -23,12 +23,13 @@ void GameScene::update()
 {
     static sf::Clock deltaClock;
     float dt = deltaClock.restart().asSeconds();
-    spaceShip.update(dt);
+    manager.update(dt);
+    manager.refresh();
 }
 
 void GameScene::render()
 {
     window.clear(sf::Color::Black);
-    window.draw(spaceShip);
+    manager.draw(window);
     window.display();
 }
