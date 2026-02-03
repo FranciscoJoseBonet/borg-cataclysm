@@ -1,6 +1,8 @@
 #include "GameScene.h"
 #include "../core/Game.h"
+
 #include "../entities/ships/SpaceShip.h"
+#include "../entities/ships/enemies/Scout.h"
 
 #include "../entities/projectiles/LaserProjectile.h"
 #include "../entities/projectiles/MissileProjectile.h"
@@ -29,6 +31,27 @@ GameScene::GameScene(sf::RenderWindow &w) : window(w)
         } });
 
     player->setPosition({size.x / 2.f, (size.y / 2.f) + (size.y / 2.7f)});
+
+    auto enemyFireAction = [this](ProjectileType type, const sf::Vector2f &pos, int dmg, float speed)
+    {
+        sf::Vector2f direction(0.f, 1.f);
+
+        const sf::Texture &tex = resources.getTexture("../assets/img/Federation_Shot_1.png");
+
+        auto &p = manager.add<LaserProjectile>(direction, speed, dmg, tex);
+        p.setPosition(pos);
+
+        p.setRotation(p.getRotation() + sf::degrees(180.f));
+    };
+
+    const sf::Texture &scoutTex = resources.getTexture("../assets/img/Klingon_Small.png");
+
+    auto &enemy = manager.add<Scout>(scoutTex, sf::Vector2f(200.f, -50.f));
+
+    enemy.setFireCallback(enemyFireAction);
+
+    auto &enemy2 = manager.add<Scout>(scoutTex, sf::Vector2f(600.f, -150.f));
+    enemy2.setFireCallback(enemyFireAction);
 }
 
 void GameScene::handleEvents()

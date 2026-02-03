@@ -1,6 +1,8 @@
 #pragma once
 #include "Scene.h"
 #include "../entities/ships/SpaceShip.h"
+#include "../entities/ships/enemies/Scout.h"
+
 #include "../managers/EntityManager.h"
 #include "../managers/ResourceManager.h"
 
