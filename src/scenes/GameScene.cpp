@@ -2,11 +2,28 @@
 #include "../core/Game.h"
 #include "../entities/ships/SpaceShip.h"
 
+#include "../entities/projectiles/LaserProjectile.h"
+#include "../entities/projectiles/MissileProjectile.h"
+
 GameScene::GameScene(sf::RenderWindow &w) : window(w)
 {
-
     auto size = window.getSize();
+
     player = &manager.add<SpaceShip>();
+
+    player->setWeaponsCallback([this](ProjectileType type, const sf::Vector2f &pos, int dmg, float speed)
+                               {
+        
+        sf::Vector2f direction(0.f, -1.f);
+        if (type == ProjectileType::LASER) {
+            auto& p = manager.add<LaserProjectile>(direction, speed, dmg);
+            p.setPosition(pos);
+        }
+        else if (type == ProjectileType::MISSILE) {
+            auto& m = manager.add<MissileProjectile>(direction, speed, 800.f, dmg);
+            m.setPosition(pos);
+        } });
+
     player->setPosition({size.x / 2.f, (size.y / 2.f) + (size.y / 2.7f)});
 }
 
