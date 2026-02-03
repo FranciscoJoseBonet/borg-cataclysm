@@ -32,25 +32,36 @@ GameScene::GameScene(sf::RenderWindow &w) : window(w)
 
     player->setPosition({size.x / 2.f, (size.y / 2.f) + (size.y / 2.7f)});
 
-    auto enemyFireAction = [this](ProjectileType type, const sf::Vector2f &pos, int dmg, float speed)
-    {
-        sf::Vector2f direction(0.f, 1.f);
+    spawnEnemyWave(10);
+}
 
-        const sf::Texture &tex = resources.getTexture("../assets/img/Klingon_Shot_1.png");
+void GameScene::spawnEnemyWave(int count)
+{
 
-        auto &p = manager.add<LaserProjectile>(direction, speed, dmg, tex, Faction::Alien);
-        p.setPosition(pos);
-
-        p.setRotation(p.getRotation());
-    };
+    std::uniform_real_distribution<float> distX(50.f, window.getSize().x - 50.f);
+    std::uniform_real_distribution<float> distY(-2000.f, -100.f);
+    std::uniform_real_distribution<float> distFireRate(0.5f, 1.5f);
 
     const sf::Texture &scoutTex = resources.getTexture("../assets/img/Klingon_Ship_1.png");
 
-    auto &enemy = manager.add<Scout>(scoutTex, sf::Vector2f(200.f, -100.f));
-    enemy.setFireCallback(enemyFireAction);
+    auto enemyFireAction = [this](ProjectileType type, const sf::Vector2f &pos, int dmg, float speed)
+    {
+        sf::Vector2f direction(0.f, 1.f);
+        const sf::Texture &tex = resources.getTexture("../assets/img/Klingon_Shot_1.png");
+        auto &p = manager.add<LaserProjectile>(direction, speed, dmg, tex, Faction::Alien);
+        p.setPosition(pos);
+    };
 
-    auto &enemy2 = manager.add<Scout>(scoutTex, sf::Vector2f(600.f, -250.f));
-    enemy2.setFireCallback(enemyFireAction);
+    for (int i = 0; i < count; ++i)
+    {
+        float x = distX(rng);
+        float y = distY(rng);
+
+        auto &enemy = manager.add<Scout>(scoutTex, sf::Vector2f(x, y));
+
+        enemy.setFireRate(distFireRate(rng));
+        enemy.setFireCallback(enemyFireAction);
+    }
 }
 
 void GameScene::handleEvents()

@@ -16,7 +16,7 @@ public:
     virtual ~Enemy();
 
     void setFireCallback(OnFireCallback callback);
-
+    void setFireRate(float rate);
     void update(float deltaTime) override;
 
     virtual void movePattern(float deltaTime) = 0;

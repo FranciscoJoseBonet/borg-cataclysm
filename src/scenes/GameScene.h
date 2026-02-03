@@ -1,4 +1,6 @@
 #pragma once
+#include <random>
+
 #include "Scene.h"
 #include "../entities/ships/SpaceShip.h"
 #include "../entities/ships/enemies/Scout.h"
@@ -16,6 +18,8 @@ private:
     CollisionManager collisionManager;
     SpaceShip *player = nullptr;
     sf::Clock clock;
+    std::mt19937 rng;
+    void spawnEnemyWave(int count);
 
 public:
     GameScene(sf::RenderWindow &window);

@@ -47,3 +47,9 @@ void Enemy::update(float deltaTime)
 void Enemy::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
 }
+
+void Enemy::setFireRate(float rate)
+{
+    fireInterval = (rate > 0) ? (1.f / rate) : 0.f;
+    fireTimer = 0.f;
+}
