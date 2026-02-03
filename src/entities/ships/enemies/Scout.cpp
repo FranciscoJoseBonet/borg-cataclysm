@@ -32,3 +32,8 @@ void Scout::draw(sf::RenderTarget &target, sf::RenderStates states) const
         target.draw(sprite, states);
     }
 }
+
+sf::FloatRect Scout::getBounds() const
+{
+    return getTransform().transformRect(sprite.getGlobalBounds());
+}

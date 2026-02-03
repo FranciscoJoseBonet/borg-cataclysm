@@ -11,17 +11,18 @@ protected:
     float speed;
     int damage;
 
-    sf::Texture texture;
     std::optional<sf::Sprite> sprite;
 
     void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
 public:
-    Projectile(sf::Vector2f direction, float speed, int damage);
+    Projectile(sf::Vector2f direction, float speed, int damage, Faction faction);
+    sf::FloatRect getBounds() const override;
+
+    int getDamage() const { return damage; }
     virtual ~Projectile() = default;
 
     void update(float deltaTime) override;
 
     void destroy() override;
-    int getDamage() const { return damage; }
 };

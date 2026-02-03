@@ -1,7 +1,8 @@
 #include "Enemy.h"
 
 Enemy::Enemy(float health, const std::string &type, float fireRate)
-    : Entity(health, type), fireTimer(0.f)
+    : Entity(health, type, Faction::Alien),
+      fireTimer(0.f)
 {
     fireInterval = (fireRate > 0) ? (1.f / fireRate) : 0.f;
 }

@@ -4,7 +4,7 @@
 #include "../../weapons/MissileLauncher.h"
 
 SpaceShip::SpaceShip()
-    : Entity(100.f, "Federation")
+    : Entity(100.f, "Federation", Faction::Player)
 {
     sf::Image img;
     if (!img.loadFromFile("../assets/img/enterprise-001.PNG"))
@@ -109,4 +109,22 @@ void SpaceShip::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
     if (sprite)
         target.draw(*sprite);
+}
+
+sf::FloatRect SpaceShip::getBounds() const
+{
+    if (sprite)
+    {
+        auto localBounds = sprite->getLocalBounds();
+
+        float width = localBounds.size.x * sprite->getScale().x;
+        float height = localBounds.size.y * sprite->getScale().y;
+
+        float left = getPosition().x - (width / 2.f);
+        float top = getPosition().y - (height / 2.f);
+
+        return sf::FloatRect({left, top}, {width, height});
+    }
+
+    return sf::FloatRect();
 }

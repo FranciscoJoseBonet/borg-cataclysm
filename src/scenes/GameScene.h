@@ -5,6 +5,7 @@
 
 #include "../managers/EntityManager.h"
 #include "../managers/ResourceManager.h"
+#include "../managers/CollisionManager.h"
 
 class GameScene : public Scene
 {
@@ -12,6 +13,7 @@ private:
     sf::RenderWindow &window;
     EntityManager manager;
     ResourceManager resources;
+    CollisionManager collisionManager;
     SpaceShip *player = nullptr;
     sf::Clock clock;
 

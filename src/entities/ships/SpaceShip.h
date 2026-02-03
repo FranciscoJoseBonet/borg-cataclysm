@@ -22,7 +22,7 @@ public:
     ~SpaceShip();
 
     void setWeaponsCallback(OnFireCallback callback);
-
+    sf::FloatRect getBounds() const override;
     void destroy() override;
     void update(float deltaTime) override;
 };

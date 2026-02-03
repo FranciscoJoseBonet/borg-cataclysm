@@ -5,6 +5,6 @@
 class LaserProjectile : public Projectile
 {
 public:
-    LaserProjectile(sf::Vector2f direction, float speed, int damage, const sf::Texture &texture);
+    LaserProjectile(sf::Vector2f direction, float speed, int damage, const sf::Texture &texture, Faction faction);
     void destroy() override;
 };

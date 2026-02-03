@@ -10,6 +10,7 @@ private:
 public:
     Scout(const sf::Texture &texture, sf::Vector2f startPos);
     void movePattern(float deltaTime) override;
+    sf::FloatRect getBounds() const override;
 
 protected:
     void draw(sf::RenderTarget &target, sf::RenderStates states) const override;

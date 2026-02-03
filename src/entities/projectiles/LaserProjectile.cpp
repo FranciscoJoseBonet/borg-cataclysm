@@ -6,8 +6,9 @@ LaserProjectile::LaserProjectile(
     sf::Vector2f direction,
     float speed,
     int damage,
-    const sf::Texture &texture)
-    : Projectile(direction, speed, damage)
+    const sf::Texture &texture,
+    Faction faction)
+    : Projectile(direction, speed, damage, faction)
 {
     sprite.emplace(texture);
 
