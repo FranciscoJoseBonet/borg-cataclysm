@@ -22,5 +22,6 @@ public:
 
     void update(float deltaTime) override;
 
+    void destroy() override;
     int getDamage() const { return damage; }
 };

@@ -3,14 +3,14 @@
 
 Game::Game()
 {
-    window.create(sf::VideoMode({res.width, res.height}), "Borg Cataclysm"); // Initialization list
+    window.create(sf::VideoMode({res.width, res.height}), "Borg Cataclysm");
     window.setFramerateLimit(144);
     currentScene = std::make_unique<GameScene>(window);
 }
 
 void Game::run()
 {
-    while (window.isOpen()) // Window rendering loop
+    while (window.isOpen())
     {
         currentScene->handleEvents();
         currentScene->update();

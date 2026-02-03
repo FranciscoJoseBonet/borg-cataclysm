@@ -23,5 +23,6 @@ public:
 
     void setWeaponsCallback(OnFireCallback callback);
 
+    void destroy() override;
     void update(float deltaTime) override;
 };

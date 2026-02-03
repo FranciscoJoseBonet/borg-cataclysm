@@ -13,12 +13,19 @@ public:
     virtual void takeDamage(float amount)
     {
         health -= amount;
-        if (health <= 0)
-            alive = false;
+        if (health <= 0 && alive)
+        {
+            destroy();
+        }
     }
 
     bool isAlive() const { return alive; }
-    void destroy() { alive = false; }
+
+    virtual void destroy()
+    {
+        alive = false;
+    }
+
     std::string getType() const { return type; }
 
 protected:

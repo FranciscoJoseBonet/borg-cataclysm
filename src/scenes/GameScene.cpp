@@ -13,14 +13,18 @@ GameScene::GameScene(sf::RenderWindow &w) : window(w)
 
     player->setWeaponsCallback([this](ProjectileType type, const sf::Vector2f &pos, int dmg, float speed)
                                {
-        
         sf::Vector2f direction(0.f, -1.f);
-        if (type == ProjectileType::LASER) {
-            auto& p = manager.add<LaserProjectile>(direction, speed, dmg);
+
+        if (type == ProjectileType::LASER) 
+        {
+            const sf::Texture& tex = resources.getTexture("../assets/img/Federation_Shot_1.png");
+            auto& p = manager.add<LaserProjectile>(direction, speed, dmg, tex);
             p.setPosition(pos);
         }
-        else if (type == ProjectileType::MISSILE) {
-            auto& m = manager.add<MissileProjectile>(direction, speed, 800.f, dmg);
+        else if (type == ProjectileType::MISSILE) 
+        {
+            const sf::Texture& missileTex = resources.getTexture("../assets/img/Federation_Shot_2.png");
+            auto& m = manager.add<MissileProjectile>(direction, speed, 800.f, dmg, missileTex);
             m.setPosition(pos);
         } });
 

@@ -35,6 +35,11 @@ SpaceShip::~SpaceShip()
     delete missileLauncher;
 }
 
+void SpaceShip::destroy()
+{
+    Entity::destroy();
+}
+
 void SpaceShip::setWeaponsCallback(OnFireCallback callback)
 {
     if (laserLauncher)

@@ -21,3 +21,8 @@ void Projectile::draw(sf::RenderTarget &target, sf::RenderStates states) const
     if (sprite)
         target.draw(*sprite, states);
 }
+
+void Projectile::destroy()
+{
+    Entity::destroy();
+}
