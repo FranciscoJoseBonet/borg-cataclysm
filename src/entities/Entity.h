@@ -26,6 +26,8 @@ public:
             destroy();
     }
 
+    void setHealth(float h) { health = h; }
+
     bool isAlive() const { return alive; }
 
     Faction getFaction() const { return faction; }

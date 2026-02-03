@@ -26,7 +26,7 @@ public:
     virtual ~Weapon() = default;
 
     void setCallback(OnFireCallback callback) { onFire = callback; }
-
+    void setProjectileSpeed(float speed) { projectileSpeed = speed; }
     virtual void Shoot(const sf::Vector2f &startPos);
 
     void update(float deltaTime);

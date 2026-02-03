@@ -53,3 +53,11 @@ void Enemy::setFireRate(float rate)
     fireInterval = (rate > 0) ? (1.f / rate) : 0.f;
     fireTimer = 0.f;
 }
+
+void Enemy::setProjectileSpeed(float speed)
+{
+    if (weapon)
+    {
+        weapon->setProjectileSpeed(speed);
+    }
+}

@@ -18,6 +18,7 @@ public:
     void setFireCallback(OnFireCallback callback);
     void setFireRate(float rate);
     void update(float deltaTime) override;
+    void setProjectileSpeed(float speed);
 
     virtual void movePattern(float deltaTime) = 0;
 

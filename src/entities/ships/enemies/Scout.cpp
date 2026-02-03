@@ -37,3 +37,8 @@ sf::FloatRect Scout::getBounds() const
 {
     return getTransform().transformRect(sprite.getGlobalBounds());
 }
+
+void Scout::setSpeed(float s)
+{
+    speed = s;
+}

@@ -37,10 +37,11 @@ GameScene::GameScene(sf::RenderWindow &w) : window(w)
 
 void GameScene::spawnEnemyWave(int count)
 {
-
     std::uniform_real_distribution<float> distX(50.f, window.getSize().x - 50.f);
     std::uniform_real_distribution<float> distY(-2000.f, -100.f);
     std::uniform_real_distribution<float> distFireRate(0.5f, 1.5f);
+    std::uniform_real_distribution<float> distShipSpeed(80.f, 150.f);
+    std::uniform_real_distribution<float> distProjSpeed(300.f, 600.f);
 
     const sf::Texture &scoutTex = resources.getTexture("../assets/img/Klingon_Ship_1.png");
 
@@ -48,6 +49,7 @@ void GameScene::spawnEnemyWave(int count)
     {
         sf::Vector2f direction(0.f, 1.f);
         const sf::Texture &tex = resources.getTexture("../assets/img/Klingon_Shot_1.png");
+
         auto &p = manager.add<LaserProjectile>(direction, speed, dmg, tex, Faction::Alien);
         p.setPosition(pos);
     };
@@ -59,11 +61,16 @@ void GameScene::spawnEnemyWave(int count)
 
         auto &enemy = manager.add<Scout>(scoutTex, sf::Vector2f(x, y));
 
+        enemy.setSpeed(distShipSpeed(rng));
+
         enemy.setFireRate(distFireRate(rng));
+
+        enemy.setProjectileSpeed(distProjSpeed(rng));
+
         enemy.setFireCallback(enemyFireAction);
+        enemy.setHealth(30.f);
     }
 }
-
 void GameScene::handleEvents()
 {
     while (auto event = window.pollEvent())
