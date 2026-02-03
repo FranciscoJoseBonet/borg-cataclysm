@@ -11,7 +11,7 @@ Scout::Scout(const sf::Texture &texture, sf::Vector2f startPos)
     sprite.setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
     sprite.setScale({0.6f, 0.6f});
 
-    sprite.setRotation(sf::degrees(180.f));
+    sprite.setRotation(sf::degrees(90.f));
 
     setPosition(startPos);
 

@@ -11,12 +11,12 @@ GameScene::GameScene(sf::RenderWindow &w) : window(w)
 {
     auto size = window.getSize();
 
+    // --- PLAYER SETUP ---
     player = &manager.add<SpaceShip>();
 
     player->setWeaponsCallback([this](ProjectileType type, const sf::Vector2f &pos, int dmg, float speed)
                                {
         sf::Vector2f direction(0.f, -1.f);
-
         if (type == ProjectileType::LASER) 
         {
             const sf::Texture& tex = resources.getTexture("../assets/img/Federation_Shot_1.png");
@@ -26,31 +26,31 @@ GameScene::GameScene(sf::RenderWindow &w) : window(w)
         else if (type == ProjectileType::MISSILE) 
         {
             const sf::Texture& missileTex = resources.getTexture("../assets/img/Federation_Shot_2.png");
-            auto& m = manager.add<MissileProjectile>(direction, speed, 800.f, dmg, missileTex);
+            auto& m = manager.add<MissileProjectile>(direction, speed, 1000.f, dmg, missileTex);
             m.setPosition(pos);
         } });
 
     player->setPosition({size.x / 2.f, (size.y / 2.f) + (size.y / 2.7f)});
 
+    // --- ENEMIES SETUP ---
+
     auto enemyFireAction = [this](ProjectileType type, const sf::Vector2f &pos, int dmg, float speed)
     {
         sf::Vector2f direction(0.f, 1.f);
 
-        const sf::Texture &tex = resources.getTexture("../assets/img/Federation_Shot_1.png");
-
+        const sf::Texture &tex = resources.getTexture("../assets/img/Klingon_Shot_1.png");
         auto &p = manager.add<LaserProjectile>(direction, speed, dmg, tex);
         p.setPosition(pos);
 
         p.setRotation(p.getRotation() + sf::degrees(180.f));
     };
 
-    const sf::Texture &scoutTex = resources.getTexture("../assets/img/Klingon_Small.png");
+    const sf::Texture &scoutTex = resources.getTexture("../assets/img/Klingon_Ship_1.png");
 
-    auto &enemy = manager.add<Scout>(scoutTex, sf::Vector2f(200.f, -50.f));
-
+    auto &enemy = manager.add<Scout>(scoutTex, sf::Vector2f(200.f, -100.f));
     enemy.setFireCallback(enemyFireAction);
 
-    auto &enemy2 = manager.add<Scout>(scoutTex, sf::Vector2f(600.f, -150.f));
+    auto &enemy2 = manager.add<Scout>(scoutTex, sf::Vector2f(600.f, -250.f));
     enemy2.setFireCallback(enemyFireAction);
 }
 

@@ -14,7 +14,7 @@ LaserProjectile::LaserProjectile(
     auto bounds = sprite->getLocalBounds();
     sprite->setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
 
-    sprite->setScale({0.5f, 0.5f});
+    sprite->setScale({0.25f, 0.25f});
 
     float angle = std::atan2(direction.y, direction.x) * 180.f / 3.14159265f;
     sprite->setRotation(sf::degrees(angle));

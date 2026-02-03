@@ -20,6 +20,7 @@ void Enemy::setFireCallback(OnFireCallback callback)
 
 void Enemy::update(float deltaTime)
 {
+
     movePattern(deltaTime);
 
     fireTimer += deltaTime;
@@ -28,7 +29,7 @@ void Enemy::update(float deltaTime)
     {
         if (weapon)
         {
-            weapon->Shoot(getPosition());
+            weapon->Shoot(getPosition() + sf::Vector2f(0.f, 120.f));
         }
         fireTimer = 0.f;
     }
@@ -36,9 +37,9 @@ void Enemy::update(float deltaTime)
     if (weapon)
         weapon->update(deltaTime);
 
-    if (getPosition().y > 1200.f)
+    if (getPosition().y > 1100.f)
     {
-        destroy();
+        setPosition({getPosition().x, -100.f});
     }
 }
 

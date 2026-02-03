@@ -17,7 +17,7 @@ MissileProjectile::MissileProjectile(
     auto bounds = sprite->getLocalBounds();
     sprite->setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
 
-    sprite->setScale({0.7f, 0.7f});
+    sprite->setScale({0.4f, 0.4f});
 
     float angle = std::atan2(direction.y, direction.x) * 180.f / 3.14159265f;
     sprite->setRotation(sf::degrees(angle));
