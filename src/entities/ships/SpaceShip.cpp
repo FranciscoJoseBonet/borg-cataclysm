@@ -1,25 +1,62 @@
 #include "SpaceShip.h"
 #include <iostream>
+#include <algorithm>
 #include "../../weapons/LaserLauncher.h"
 #include "../../weapons/MissileLauncher.h"
 
 SpaceShip::SpaceShip()
-    : Entity(100.f, "Federation", Faction::Player)
+    : Entity(100.f, "Federation", Faction::Player),
+      shieldSprite(shieldTexture)
 {
-    sf::Image img;
+    maxShield = 100.f;
+    shield = 100.f;
 
+    if (!shieldTexture.loadFromFile("../assets/img/shield.png"))
+    {
+        std::cerr << "ERROR: No se encontro shield.png - Usando textura de emergencia.\n";
+
+        sf::Image temp;
+        temp.resize({100, 100}, sf::Color::White);
+
+        if (!shieldTexture.loadFromImage(temp))
+        {
+            std::cerr << "Error fatal creando textura temporal.\n";
+        }
+    }
+
+    shieldSprite.setTexture(shieldTexture, true);
+
+    auto sBounds = shieldSprite.getLocalBounds();
+    shieldSprite.setOrigin({sBounds.size.x / 2.f, sBounds.size.y / 2.f});
+
+    shieldSprite.setColor(sf::Color(0, 255, 255, 80));
+
+    sf::Image img;
     if (!img.loadFromFile("../assets/img/enterprise-001.PNG"))
     {
-        std::cerr << "No se pudo cargar la textura del jugador\n";
+        std::cerr << "ERROR: No se cargo la nave.\n";
         img.resize({20, 20}, sf::Color::Red);
     }
 
     if (texture.loadFromImage(img))
     {
         sprite.emplace(texture);
-        auto bounds = sprite->getLocalBounds();
+        auto shipBounds = sprite->getLocalBounds();
 
-        sprite->setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
+        sprite->setOrigin({shipBounds.size.x / 2.f, shipBounds.size.y / 2.f});
+
+        auto shieldBounds = shieldSprite.getLocalBounds();
+
+        float shipRadius = std::max(shipBounds.size.x, shipBounds.size.y) / 2.f;
+        float shieldRadius = std::max(shieldBounds.size.x, shieldBounds.size.y) / 2.f;
+
+        if (shieldRadius < 1.f)
+            shieldRadius = 1.f;
+
+        float scaleFactor = (shipRadius + 5.f) / shieldRadius;
+
+        shieldSprite.setScale({scaleFactor, scaleFactor});
+        shieldSprite.setPosition({0.f, -5.f});
     }
 
     setPosition({540.f, 840.f});
@@ -84,7 +121,6 @@ void SpaceShip::update(float deltaTime)
     if (isInvulnerable)
     {
         invulnerabilityTimer -= deltaTime;
-
         blinkTimer += deltaTime;
         if (blinkTimer >= 0.1f)
         {
@@ -123,31 +159,27 @@ void SpaceShip::update(float deltaTime)
         missileLauncher->update(deltaTime);
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::I) && laserLauncher)
-    {
         laserLauncher->Shoot(getPosition());
-    }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::O) && missileLauncher)
-    {
         missileLauncher->Shoot(getPosition());
-    }
 }
 
 void SpaceShip::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
+    states.transform *= getTransform();
+
     if (sprite)
-    {
-        states.transform *= getTransform();
         target.draw(*sprite, states);
-    }
+
+    if (shield > 0)
+        target.draw(shieldSprite, states);
 }
 
 sf::FloatRect SpaceShip::getBounds() const
 {
     if (sprite)
-    {
         return getTransform().transformRect(sprite->getGlobalBounds());
-    }
     return sf::FloatRect();
 }
 
@@ -156,7 +188,7 @@ void SpaceShip::applyPowerUp(PowerUpType type)
     switch (type)
     {
     case PowerUpType::SHIELD:
-        heal(30.f);
+        addShield(50.f);
         break;
     case PowerUpType::DOUBLE_SHOT:
         enableDoubleShot();
@@ -174,6 +206,15 @@ void SpaceShip::applyPowerUp(PowerUpType type)
         lives++;
         break;
     }
+}
+
+void SpaceShip::addShield(float amount)
+{
+    shield += amount;
+    if (shield > maxShield)
+        shield = maxShield;
+
+    std::cout << "Escudo regenerado! Nivel actual: " << shield << "\n";
 }
 
 void SpaceShip::heal(float amount)
@@ -204,13 +245,10 @@ void SpaceShip::setInvulnerable(float duration)
 {
     isInvulnerable = true;
     invulnerabilityTimer = duration;
-
     blinkTimer = 0.f;
     isBlinkVisible = true;
-
     if (sprite)
         sprite->setColor(sf::Color(255, 255, 255, 128));
-
     std::cout << "¡Escudos Invencibles Activados!\n";
 }
 
@@ -219,8 +257,31 @@ void SpaceShip::takeDamage(float amount)
     if (isInvulnerable)
         return;
 
-    health -= amount;
+    if (shield > 0)
+    {
+        float damageToShield = amount;
+
+        if (damageToShield > shield)
+        {
+            float damageRemaining = damageToShield - shield;
+            shield = 0;
+            std::cout << "¡ESCUDO ROTO!\n";
+            health -= damageRemaining;
+        }
+        else
+        {
+            shield -= damageToShield;
+            std::cout << "Escudo absorbe impacto. Restante: " << shield << "\n";
+            return;
+        }
+    }
+    else
+    {
+        health -= amount;
+    }
+
     std::cout << "Jugador danado! Salud: " << health << "\n";
+
     if (health <= 0.f)
     {
         lives--;
@@ -240,6 +301,9 @@ void SpaceShip::takeDamage(float amount)
 void SpaceShip::respawn()
 {
     health = 100.f;
+
+    shield = 30.f;
+
     setPosition({540.f, 840.f});
 
     if (sprite)

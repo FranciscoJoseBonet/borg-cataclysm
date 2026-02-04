@@ -15,7 +15,7 @@ MenuScene::MenuScene(sf::RenderWindow &w)
 
     titleText.setString("BORG CATACLYSM");
     titleText.setCharacterSize(100);
-    titleText.setFillColor(sf::Color::Red);
+    titleText.setFillColor(sf::Color(255, 215, 0));
     titleText.setOutlineColor(sf::Color(100, 0, 0));
     titleText.setOutlineThickness(4.f);
     centerText(titleText, -200.f);

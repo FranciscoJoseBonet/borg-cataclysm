@@ -19,6 +19,11 @@ private:
     bool doubleShotActive = false;
     float blinkTimer = 0.f;
     bool isBlinkVisible = true;
+    float shield;
+    float maxShield;
+
+    sf::Texture shieldTexture;
+    sf::Sprite shieldSprite;
 
     Weapon *laserLauncher = nullptr;
     Weapon *missileLauncher = nullptr;
@@ -29,7 +34,7 @@ private:
     void enableRapidFire();
     void heal(float amount);
     void setInvulnerable(float duration);
-    void addShield(float shieldAmount);
+    void addShield(float amount);
 
     void respawn();
 
