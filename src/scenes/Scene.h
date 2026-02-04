@@ -4,9 +4,11 @@
 enum class SceneType
 {
     None,
+    Menu,
     Game,
     GameOver,
-    Score
+    Score,
+    Options
 };
 
 class Scene
@@ -18,6 +20,5 @@ public:
     virtual void render() = 0;
 
     virtual SceneType getNextScene() const { return SceneType::None; }
-
     virtual int getScore() const { return 0; }
 };

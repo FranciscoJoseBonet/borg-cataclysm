@@ -1,13 +1,16 @@
 #include "Game.h"
+#include <iostream>
 #include "../scenes/GameScene.h"
 #include "../scenes/GameOverScene.h"
 #include "../scenes/ScoreScene.h"
+#include "../scenes/MenuScene.h"
 
 Game::Game()
 {
     window.create(sf::VideoMode({res.width, res.height}), "Borg Cataclysm");
     window.setFramerateLimit(144);
-    currentScene = std::make_unique<GameScene>(window);
+
+    currentScene = std::make_unique<MenuScene>(window);
 }
 
 void Game::run()
@@ -22,18 +25,26 @@ void Game::run()
 
         if (next != SceneType::None)
         {
-            if (next == SceneType::GameOver)
+            if (next == SceneType::Game)
             {
-                int finalScore = currentScene->getScore();
-                currentScene = std::make_unique<GameOverScene>(window, finalScore);
+                currentScene = std::make_unique<GameScene>(window);
             }
             else if (next == SceneType::Score)
             {
                 currentScene = std::make_unique<ScoreScene>(window);
             }
-            else if (next == SceneType::Game)
+            else if (next == SceneType::GameOver)
             {
-                currentScene = std::make_unique<GameScene>(window);
+                int finalScore = currentScene->getScore();
+                currentScene = std::make_unique<GameOverScene>(window, finalScore);
+            }
+            else if (next == SceneType::Menu)
+            {
+                currentScene = std::make_unique<MenuScene>(window);
+            }
+            else if (next == SceneType::Options)
+            {
+                std::cout << "Opciones no implementado aun.\n";
             }
         }
     }
