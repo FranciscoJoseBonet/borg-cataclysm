@@ -1,14 +1,10 @@
 #pragma once
 #include <random>
-
 #include "Scene.h"
-
 #include "../environment/StarField.h"
-
 #include "../entities/ships/SpaceShip.h"
 #include "../entities/ships/enemies/Scout.h"
 #include "../entities/items/PowerUp.h"
-
 #include "../managers/EntityManager.h"
 #include "../managers/ResourceManager.h"
 #include "../managers/CollisionManager.h"
@@ -23,15 +19,25 @@ private:
     std::mt19937 rng;
 
     sf::Clock deltaClock;
-
     StarField stars;
 
     SpaceShip *player = nullptr;
     bool gameOver = false;
     int score = 0;
 
+    bool isPaused = false;
+    sf::Font font;
+    sf::RectangleShape pauseOverlay;
+    sf::Text pauseTitle;
+    sf::Text resumeButton;
+    sf::Text menuButton;
+
+    SceneType nextScene = SceneType::None;
+
     void spawnEnemyWave(int count);
     void spawnPowerUp(sf::Vector2f position);
+
+    void initPauseMenu();
 
 public:
     GameScene(sf::RenderWindow &window);
@@ -42,7 +48,9 @@ public:
 
     SceneType getNextScene() const override
     {
-        return gameOver ? SceneType::GameOver : SceneType::None;
+        if (gameOver)
+            return SceneType::GameOver;
+        return nextScene;
     }
 
     int getScore() const override { return score; }

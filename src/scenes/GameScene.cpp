@@ -1,5 +1,6 @@
 #include "GameScene.h"
 #include "../core/Game.h"
+#include <iostream>
 
 #include "../entities/ships/SpaceShip.h"
 #include "../entities/ships/enemies/Scout.h"
@@ -11,8 +12,14 @@
 GameScene::GameScene(sf::RenderWindow &w)
     : window(w),
       rng(std::random_device{}()),
-      stars(w.getSize(), 400)
+      stars(w.getSize(), 400),
+
+      pauseTitle(font),
+      resumeButton(font),
+      menuButton(font)
 {
+    initPauseMenu();
+
     auto size = window.getSize();
     deltaClock.restart();
     player = &manager.add<SpaceShip>();
@@ -23,20 +30,20 @@ GameScene::GameScene(sf::RenderWindow &w)
 
         if (type == ProjectileType::LASER) 
         {
-            const sf::Texture& tex = resources.getTexture("../assets/img/Federation_Shot_1.png");
-            
-            if (player->isDoubleShotActive())
-            {
-                auto& p1 = manager.add<LaserProjectile>(direction, speed, dmg, tex, Faction::Player);
-                p1.setPosition({pos.x - 25.f, pos.y}); 
-                auto& p2 = manager.add<LaserProjectile>(direction, speed, dmg, tex, Faction::Player);
-                p2.setPosition({pos.x + 25.f, pos.y});
-            }
-            else
-            {
-                auto& p = manager.add<LaserProjectile>(direction, speed, dmg, tex, Faction::Player);
-                p.setPosition(pos);
-            }
+           const sf::Texture& tex = resources.getTexture("../assets/img/Federation_Shot_1.png");
+           
+           if (player->isDoubleShotActive())
+           {
+               auto& p1 = manager.add<LaserProjectile>(direction, speed, dmg, tex, Faction::Player);
+               p1.setPosition({pos.x - 25.f, pos.y}); 
+               auto& p2 = manager.add<LaserProjectile>(direction, speed, dmg, tex, Faction::Player);
+               p2.setPosition({pos.x + 25.f, pos.y});
+           }
+           else
+           {
+               auto& p = manager.add<LaserProjectile>(direction, speed, dmg, tex, Faction::Player);
+               p.setPosition(pos);
+           }
 
         }
         else if (type == ProjectileType::MISSILE) 
@@ -60,6 +67,144 @@ GameScene::GameScene(sf::RenderWindow &w)
         } });
 
     spawnEnemyWave(70);
+}
+
+void GameScene::initPauseMenu()
+{
+    if (!font.openFromFile("../assets/fonts/Star_Trek_Enterprise_Future.ttf"))
+    {
+        if (!font.openFromFile("../assets/fonts/pixel_font.ttf"))
+            std::cerr << "ERROR: No se pudo cargar fuente para pausa.\n";
+    }
+
+    sf::Vector2u winSize = window.getSize();
+
+    pauseOverlay.setSize(sf::Vector2f((float)winSize.x, (float)winSize.y));
+    pauseOverlay.setFillColor(sf::Color(0, 0, 0, 150));
+
+    pauseTitle.setFont(font);
+    pauseTitle.setString("SISTEMA PAUSADO");
+    pauseTitle.setCharacterSize(60);
+    pauseTitle.setFillColor(sf::Color::Cyan);
+
+    auto bounds = pauseTitle.getLocalBounds();
+    pauseTitle.setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
+    pauseTitle.setPosition({winSize.x / 2.f, winSize.y / 3.f});
+
+    resumeButton.setFont(font);
+    resumeButton.setString("REANUDAR MISION");
+    resumeButton.setCharacterSize(30);
+    resumeButton.setFillColor(sf::Color::White);
+
+    bounds = resumeButton.getLocalBounds();
+    resumeButton.setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
+    resumeButton.setPosition({winSize.x / 2.f, winSize.y / 2.f});
+
+    menuButton.setFont(font);
+    menuButton.setString("ABORTAR MISION (MENU)");
+    menuButton.setCharacterSize(30);
+    menuButton.setFillColor(sf::Color::White);
+
+    bounds = menuButton.getLocalBounds();
+    menuButton.setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
+    menuButton.setPosition({winSize.x / 2.f, (winSize.y / 2.f) + 60.f});
+}
+
+void GameScene::handleEvents()
+{
+    while (auto event = window.pollEvent())
+    {
+        if (event->is<sf::Event::Closed>())
+            window.close();
+
+        if (const auto *keyEvent = event->getIf<sf::Event::KeyPressed>())
+        {
+            if (keyEvent->code == sf::Keyboard::Key::Escape)
+            {
+                isPaused = !isPaused;
+
+                if (!isPaused)
+                    deltaClock.restart();
+            }
+        }
+
+        if (isPaused)
+        {
+            if (const auto *mouseEvent = event->getIf<sf::Event::MouseButtonPressed>())
+            {
+                if (mouseEvent->button == sf::Mouse::Button::Left)
+                {
+                    sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
+                    if (resumeButton.getGlobalBounds().contains(mousePos))
+                    {
+                        isPaused = false;
+                        deltaClock.restart();
+                    }
+                    else if (menuButton.getGlobalBounds().contains(mousePos))
+                    {
+                        nextScene = SceneType::Menu;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void GameScene::update()
+{
+    float dt = deltaClock.restart().asSeconds();
+    if (dt > 0.1f)
+        dt = 0.1f;
+
+    if (isPaused)
+    {
+        sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
+        if (resumeButton.getGlobalBounds().contains(mousePos))
+            resumeButton.setFillColor(sf::Color::Yellow);
+        else
+            resumeButton.setFillColor(sf::Color::White);
+
+        if (menuButton.getGlobalBounds().contains(mousePos))
+            menuButton.setFillColor(sf::Color::Red);
+        else
+            menuButton.setFillColor(sf::Color::White);
+
+        return;
+    }
+
+    stars.update(dt);
+
+    if (!gameOver)
+    {
+        manager.update(dt);
+        collisionManager.checkCollisions(manager);
+
+        if (player->getLives() <= 0)
+        {
+            gameOver = true;
+        }
+        manager.refresh();
+    }
+}
+
+void GameScene::render()
+{
+    window.clear(sf::Color::Black);
+
+    stars.draw(window);
+    manager.draw(window);
+
+    if (isPaused)
+    {
+        window.draw(pauseOverlay);
+        window.draw(pauseTitle);
+        window.draw(resumeButton);
+        window.draw(menuButton);
+    }
+
+    window.display();
 }
 
 void GameScene::spawnEnemyWave(int count)
@@ -104,14 +249,6 @@ void GameScene::spawnPowerUp(sf::Vector2f position)
 
     PowerUpType type;
 
-    /*
-    36% -> SHIELD
-    30% -> RAPID_FIRE
-    20% -> DOUBLE_SHOT
-    9%  -> INVINCIBILITY
-    6% -> HEAL
-    5%-> EXTRA_LIFE */
-
     if (roll <= 35)
         type = PowerUpType::SHIELD;
     else if (roll <= 65)
@@ -149,46 +286,5 @@ void GameScene::spawnPowerUp(sf::Vector2f position)
     }
 
     const sf::Texture &tex = resources.getTexture(texturePath);
-
     manager.add<PowerUp>(position, type, tex);
-}
-
-void GameScene::handleEvents()
-{
-    while (auto event = window.pollEvent())
-    {
-        if (event->is<sf::Event::Closed>())
-            window.close();
-    }
-}
-
-void GameScene::update()
-{
-    float dt = deltaClock.restart().asSeconds();
-
-    if (dt > 0.1f)
-        dt = 0.1f;
-
-    stars.update(dt);
-
-    if (!gameOver)
-    {
-        stars.update(dt);
-        manager.update(dt);
-        collisionManager.checkCollisions(manager);
-
-        if (player->getLives() <= 0)
-        {
-            gameOver = true;
-        }
-        manager.refresh();
-    }
-}
-
-void GameScene::render()
-{
-    window.clear(sf::Color::Black);
-    stars.draw(window);
-    manager.draw(window);
-    window.display();
 }
