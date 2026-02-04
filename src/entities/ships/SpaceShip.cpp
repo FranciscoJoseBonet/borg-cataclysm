@@ -84,11 +84,32 @@ void SpaceShip::update(float deltaTime)
     if (isInvulnerable)
     {
         invulnerabilityTimer -= deltaTime;
+
+        blinkTimer += deltaTime;
+
+        if (blinkTimer >= 0.1f)
+        {
+            blinkTimer = 0.f;
+            isBlinkVisible = !isBlinkVisible;
+
+            if (sprite)
+            {
+                if (isBlinkVisible)
+                {
+                    sprite->setColor(sf::Color(255, 255, 255, 128));
+                }
+                else
+                {
+                    sprite->setColor(sf::Color(255, 255, 255, 50));
+                }
+            }
+        }
+
         if (invulnerabilityTimer <= 0.f)
         {
             isInvulnerable = false;
             if (sprite)
-                sprite->setColor(sf::Color::White);
+                sprite->setColor(sf::Color(255, 255, 255, 255));
         }
     }
 
@@ -183,9 +204,14 @@ void SpaceShip::setInvulnerable(float duration)
 {
     isInvulnerable = true;
     invulnerabilityTimer = duration;
+
+    blinkTimer = 0.f;
+    isBlinkVisible = true;
+
     if (sprite)
         sprite->setColor(sf::Color(255, 255, 255, 128));
-    std::cout << "Escudos Invencibles Activados!\n";
+
+    std::cout << "¡Escudos Invencibles Activados!\n";
 }
 
 void SpaceShip::takeDamage(float amount)

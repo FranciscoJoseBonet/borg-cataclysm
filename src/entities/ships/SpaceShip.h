@@ -16,6 +16,8 @@ private:
     bool isInvulnerable = false;
     float rapidFireTimer = 0.f;
     bool doubleShotActive = false;
+    float blinkTimer = 0.f;
+    bool isBlinkVisible = true;
 
     Weapon *laserLauncher = nullptr;
     Weapon *missileLauncher = nullptr;
