@@ -22,6 +22,8 @@ private:
     CollisionManager collisionManager;
     std::mt19937 rng;
 
+    sf::Clock deltaClock;
+
     StarField stars;
 
     SpaceShip *player = nullptr;

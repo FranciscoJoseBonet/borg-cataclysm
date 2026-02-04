@@ -14,7 +14,7 @@ GameScene::GameScene(sf::RenderWindow &w)
       stars(w.getSize(), 400)
 {
     auto size = window.getSize();
-
+    deltaClock.restart();
     player = &manager.add<SpaceShip>();
 
     player->setWeaponsCallback([this](ProjectileType type, const sf::Vector2f &pos, int dmg, float speed)
@@ -164,13 +164,16 @@ void GameScene::handleEvents()
 
 void GameScene::update()
 {
-    static sf::Clock deltaClock;
     float dt = deltaClock.restart().asSeconds();
+
+    if (dt > 0.1f)
+        dt = 0.1f;
 
     stars.update(dt);
 
     if (!gameOver)
     {
+        stars.update(dt);
         manager.update(dt);
         collisionManager.checkCollisions(manager);
 
@@ -178,7 +181,6 @@ void GameScene::update()
         {
             gameOver = true;
         }
-
         manager.refresh();
     }
 }

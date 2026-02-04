@@ -20,26 +20,27 @@ private:
 
     sf::Sprite background;
     sf::RectangleShape panel;
-
     sf::Text titleText;
-    sf::Text infoText;
+
+    sf::Text playAgainButton;
+    sf::Text menuButton;
+
     std::vector<sf::Text> scoreTexts;
 
     float totalTime;
-    bool requestRestart = false;
+    SceneType nextScene = SceneType::None;
 
     void loadAndSortScores();
     void centerText(sf::Text &text, float yOffset);
 
+    void setupButton(sf::Text &text, std::string label, float xOffset, float yOffset);
+
 public:
     ScoreScene(sf::RenderWindow &window);
-
-    SceneType getNextScene() const override
-    {
-        return requestRestart ? SceneType::Game : SceneType::None;
-    }
 
     void handleEvents() override;
     void update() override;
     void render() override;
+
+    SceneType getNextScene() const override { return nextScene; }
 };
