@@ -10,6 +10,9 @@ class GameOverScene : public Scene
 private:
     sf::RenderWindow &window;
 
+    sf::View view;
+    sf::Vector2f baseResolution;
+
     int score;
     bool saved;
     bool switchToScore = false;
@@ -31,6 +34,7 @@ private:
 
     void saveScoreToFile();
     void centerText(sf::Text &text, float yOffset);
+    void updateView();
 
 public:
     GameOverScene(sf::RenderWindow &window, int finalScore);
@@ -40,7 +44,7 @@ public:
         return switchToScore ? SceneType::Score : SceneType::None;
     }
 
-    void handleEvents() override;
+    void handleEvent(const sf::Event &event) override;
     void update() override;
     void render() override;
 };

@@ -13,8 +13,12 @@ class Game
 {
 private:
     sf::RenderWindow window;
-    Resolution res{1080, 920};
+    Resolution res;
     std::unique_ptr<Scene> currentScene;
+
+    bool isFullscreen = true;
+
+    void toggleFullscreen();
 
 public:
     Game();

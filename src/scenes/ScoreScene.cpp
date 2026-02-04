@@ -13,6 +13,10 @@ ScoreScene::ScoreScene(sf::RenderWindow &w)
       menuButton(font),
       totalTime(0.f)
 {
+    baseResolution = sf::Vector2f((float)w.getSize().x, (float)w.getSize().y);
+    view.setSize(baseResolution);
+    view.setCenter({baseResolution.x / 2.f, baseResolution.y / 2.f});
+
     if (!font.openFromFile("../assets/fonts/Star_Trek_Enterprise_Future.ttf"))
     {
         std::cerr << "ERROR: No se pudo cargar la fuente.\n";
@@ -26,14 +30,12 @@ ScoreScene::ScoreScene(sf::RenderWindow &w)
     {
         background.setTexture(backgroundTexture, true);
         sf::Vector2u texSize = backgroundTexture.getSize();
-        sf::Vector2u winSize = window.getSize();
-        float scaleX = static_cast<float>(winSize.x) / texSize.x;
-        float scaleY = static_cast<float>(winSize.y) / texSize.y;
+
+        float scaleX = baseResolution.x / static_cast<float>(texSize.x);
+        float scaleY = baseResolution.y / static_cast<float>(texSize.y);
         float maxScale = std::max(scaleX, scaleY);
         background.setScale({maxScale, maxScale});
     }
-
-    sf::Vector2u winSize = window.getSize();
 
     panel.setSize({700.f, 650.f});
     panel.setFillColor(sf::Color(0, 0, 0, 180));
@@ -42,7 +44,7 @@ ScoreScene::ScoreScene(sf::RenderWindow &w)
 
     sf::Vector2f pSize = panel.getSize();
     panel.setOrigin({pSize.x / 2.f, pSize.y / 2.f});
-    panel.setPosition({winSize.x / 2.f, winSize.y / 2.f});
+    panel.setPosition({baseResolution.x / 2.f, baseResolution.y / 2.f});
 
     titleText.setString("TABLA DE POSICIONES");
     titleText.setCharacterSize(60);
@@ -57,6 +59,33 @@ ScoreScene::ScoreScene(sf::RenderWindow &w)
     loadAndSortScores();
 }
 
+void ScoreScene::updateView()
+{
+    float windowRatio = (float)window.getSize().x / (float)window.getSize().y;
+    float viewRatio = baseResolution.x / baseResolution.y;
+    float sizeX = 1;
+    float sizeY = 1;
+    float posX = 0;
+    float posY = 0;
+
+    bool horizontalSpacing = true;
+    if (windowRatio < viewRatio)
+        horizontalSpacing = false;
+
+    if (horizontalSpacing)
+    {
+        sizeX = viewRatio / windowRatio;
+        posX = (1 - sizeX) / 2.f;
+    }
+    else
+    {
+        sizeY = windowRatio / viewRatio;
+        posY = (1 - sizeY) / 2.f;
+    }
+
+    view.setViewport(sf::FloatRect({posX, posY}, {sizeX, sizeY}));
+}
+
 void ScoreScene::setupButton(sf::Text &text, std::string label, float xOffset, float yOffset)
 {
     text.setString(label);
@@ -66,8 +95,8 @@ void ScoreScene::setupButton(sf::Text &text, std::string label, float xOffset, f
     auto bounds = text.getLocalBounds();
     text.setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
 
-    text.setPosition({(window.getSize().x / 2.f) + xOffset,
-                      (window.getSize().y / 2.f) + yOffset});
+    text.setPosition({(baseResolution.x / 2.f) + xOffset,
+                      (baseResolution.y / 2.f) + yOffset});
 }
 
 void ScoreScene::loadAndSortScores()
@@ -134,30 +163,29 @@ void ScoreScene::centerText(sf::Text &text, float yOffset)
 {
     auto bounds = text.getLocalBounds();
     text.setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
-    text.setPosition({window.getSize().x / 2.f, (window.getSize().y / 2.f) + yOffset});
+    text.setPosition({baseResolution.x / 2.f, (baseResolution.y / 2.f) + yOffset});
 }
 
-void ScoreScene::handleEvents()
+void ScoreScene::handleEvent(const sf::Event &event)
 {
-    while (auto event = window.pollEvent())
+    if (event.is<sf::Event::Resized>())
     {
-        if (event->is<sf::Event::Closed>())
-            window.close();
+        updateView();
+    }
 
-        if (const auto *mouseEvent = event->getIf<sf::Event::MouseButtonPressed>())
+    if (const auto *mouseEvent = event.getIf<sf::Event::MouseButtonPressed>())
+    {
+        if (mouseEvent->button == sf::Mouse::Button::Left)
         {
-            if (mouseEvent->button == sf::Mouse::Button::Left)
-            {
-                sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+            sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window), view);
 
-                if (playAgainButton.getGlobalBounds().contains(mousePos))
-                {
-                    nextScene = SceneType::Game;
-                }
-                else if (menuButton.getGlobalBounds().contains(mousePos))
-                {
-                    nextScene = SceneType::Menu;
-                }
+            if (playAgainButton.getGlobalBounds().contains(mousePos))
+            {
+                nextScene = SceneType::Game;
+            }
+            else if (menuButton.getGlobalBounds().contains(mousePos))
+            {
+                nextScene = SceneType::Menu;
             }
         }
     }
@@ -171,7 +199,7 @@ void ScoreScene::update()
     float yOffset = std::sin(totalTime * 2.f) * 5.f;
     centerText(titleText, -280.f + yOffset);
 
-    sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+    sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window), view);
 
     auto updateButtonHover = [&](sf::Text &btn)
     {
@@ -194,6 +222,7 @@ void ScoreScene::update()
 void ScoreScene::render()
 {
     window.clear(sf::Color::Black);
+    window.setView(view);
 
     window.draw(background);
     window.draw(panel);

@@ -3,15 +3,19 @@
 #include "../environment/StarField.h"
 #include <vector>
 #include <string>
+#include <SFML/Graphics.hpp>
 
 class MenuScene : public Scene
 {
 private:
     sf::RenderWindow &window;
 
-    sf::Font font;
+    sf::View view;
+    sf::Vector2f baseResolution;
 
     StarField stars;
+
+    sf::Font font;
     sf::Text titleText;
     std::vector<sf::Text> menuOptions;
 
@@ -21,11 +25,12 @@ private:
 
     void initMenuOptions();
     void centerText(sf::Text &text, float yOffset);
+    void updateView();
 
 public:
     MenuScene(sf::RenderWindow &window);
 
-    void handleEvents() override;
+    void handleEvent(const sf::Event &event) override;
     void update() override;
     void render() override;
 

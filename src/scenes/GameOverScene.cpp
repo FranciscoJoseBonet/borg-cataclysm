@@ -16,6 +16,10 @@ GameOverScene::GameOverScene(sf::RenderWindow &w, int finalScore)
       infoText(font),
       totalTime(0.f)
 {
+    baseResolution = sf::Vector2f((float)w.getSize().x, (float)w.getSize().y);
+    view.setSize(baseResolution);
+    view.setCenter({baseResolution.x / 2.f, baseResolution.y / 2.f});
+
     if (!font.openFromFile("../assets/fonts/Star_Trek_Enterprise_Future.ttf"))
     {
         std::cerr << "ERROR: No se pudo cargar la fuente.\n";
@@ -30,16 +34,13 @@ GameOverScene::GameOverScene(sf::RenderWindow &w, int finalScore)
         background.setTexture(backgroundTexture, true);
 
         sf::Vector2u texSize = backgroundTexture.getSize();
-        sf::Vector2u winSize = window.getSize();
 
-        float scaleX = static_cast<float>(winSize.x) / texSize.x;
-        float scaleY = static_cast<float>(winSize.y) / texSize.y;
+        float scaleX = baseResolution.x / static_cast<float>(texSize.x);
+        float scaleY = baseResolution.y / static_cast<float>(texSize.y);
 
         float maxScale = std::max(scaleX, scaleY);
         background.setScale({maxScale, maxScale});
     }
-
-    sf::Vector2u winSize = window.getSize();
 
     panel.setSize({600.f, 500.f});
     panel.setFillColor(sf::Color(0, 0, 0, 180));
@@ -48,7 +49,7 @@ GameOverScene::GameOverScene(sf::RenderWindow &w, int finalScore)
 
     sf::Vector2f pSize = panel.getSize();
     panel.setOrigin({pSize.x / 2.f, pSize.y / 2.f});
-    panel.setPosition({winSize.x / 2.f, winSize.y / 2.f});
+    panel.setPosition({baseResolution.x / 2.f, baseResolution.y / 2.f});
 
     titleText.setString("GAME OVER");
     titleText.setCharacterSize(90);
@@ -82,42 +83,68 @@ GameOverScene::GameOverScene(sf::RenderWindow &w, int finalScore)
     infoText.setOutlineThickness(1.f);
 }
 
+void GameOverScene::updateView()
+{
+    float windowRatio = (float)window.getSize().x / (float)window.getSize().y;
+    float viewRatio = baseResolution.x / baseResolution.y;
+    float sizeX = 1;
+    float sizeY = 1;
+    float posX = 0;
+    float posY = 0;
+
+    bool horizontalSpacing = true;
+    if (windowRatio < viewRatio)
+        horizontalSpacing = false;
+
+    if (horizontalSpacing)
+    {
+        sizeX = viewRatio / windowRatio;
+        posX = (1 - sizeX) / 2.f;
+    }
+    else
+    {
+        sizeY = windowRatio / viewRatio;
+        posY = (1 - sizeY) / 2.f;
+    }
+
+    view.setViewport(sf::FloatRect({posX, posY}, {sizeX, sizeY}));
+}
+
 void GameOverScene::centerText(sf::Text &text, float yOffset)
 {
     auto bounds = text.getLocalBounds();
     text.setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
-    text.setPosition({window.getSize().x / 2.f, (window.getSize().y / 2.f) + yOffset});
+    text.setPosition({baseResolution.x / 2.f, (baseResolution.y / 2.f) + yOffset});
 }
 
-void GameOverScene::handleEvents()
+void GameOverScene::handleEvent(const sf::Event &event)
 {
-    while (auto event = window.pollEvent())
+    if (event.is<sf::Event::Resized>())
     {
-        if (event->is<sf::Event::Closed>())
-            window.close();
+        updateView();
+    }
 
-        if (const auto *textEvent = event->getIf<sf::Event::TextEntered>())
+    if (const auto *textEvent = event.getIf<sf::Event::TextEntered>())
+    {
+        uint32_t unicode = textEvent->unicode;
+
+        if (unicode == 8)
         {
-            uint32_t unicode = textEvent->unicode;
-
-            if (unicode == 8)
+            if (!playerName.empty())
+                playerName.pop_back();
+        }
+        else if (unicode == 13)
+        {
+            if (!playerName.empty() && !saved)
             {
-                if (!playerName.empty())
-                    playerName.pop_back();
+                saveScoreToFile();
+                saved = true;
+                switchToScore = true;
             }
-            else if (unicode == 13)
-            {
-                if (!playerName.empty() && !saved)
-                {
-                    saveScoreToFile();
-                    saved = true;
-                    switchToScore = true;
-                }
-            }
-            else if (unicode >= 32 && unicode < 128 && playerName.size() < 10)
-            {
-                playerName += static_cast<char>(unicode);
-            }
+        }
+        else if (unicode >= 32 && unicode < 128 && playerName.size() < 10)
+        {
+            playerName += static_cast<char>(unicode);
         }
     }
 }
@@ -150,6 +177,7 @@ void GameOverScene::update()
 void GameOverScene::render()
 {
     window.clear(sf::Color::Black);
+    window.setView(view);
 
     window.draw(background);
     window.draw(panel);

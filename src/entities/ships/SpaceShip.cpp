@@ -6,6 +6,7 @@
 
 SpaceShip::SpaceShip()
     : Entity(100.f, "Federation", Faction::Player),
+      worldBounds({1280.f, 720.f}),
       shieldSprite(shieldTexture)
 {
     maxShield = 100.f;
@@ -59,7 +60,7 @@ SpaceShip::SpaceShip()
         shieldSprite.setPosition({0.f, -5.f});
     }
 
-    setPosition({540.f, 840.f});
+    setPosition({worldBounds.x / 2.f, worldBounds.y - 100.f});
 
     laserLauncher = new LaserLauncher("Phaser Bank", 5.f, 600.f, 10);
     missileLauncher = new MissileLauncher("Photon Torpedo", 1.f, 100.f, 50);
@@ -69,6 +70,12 @@ SpaceShip::~SpaceShip()
 {
     delete laserLauncher;
     delete missileLauncher;
+}
+
+void SpaceShip::setWorldBounds(sf::Vector2f bounds)
+{
+    worldBounds = bounds;
+    setPosition({worldBounds.x / 2.f, worldBounds.y - 100.f});
 }
 
 void SpaceShip::destroy()
@@ -102,10 +109,13 @@ void SpaceShip::update(float deltaTime)
 
     sf::Vector2f pos = getPosition();
 
-    float minX = 30.f;
-    float maxX = 1055.f;
-    float minY = 40.f;
-    float maxY = 860.f;
+    float marginX = 30.f;
+    float marginY = 40.f;
+
+    float minX = marginX;
+    float maxX = worldBounds.x - marginX;
+    float minY = marginY;
+    float maxY = worldBounds.y - marginY;
 
     if (pos.x < minX)
         pos.x = minX;
@@ -301,10 +311,9 @@ void SpaceShip::takeDamage(float amount)
 void SpaceShip::respawn()
 {
     health = 100.f;
-
     shield = 30.f;
 
-    setPosition({540.f, 840.f});
+    setPosition({worldBounds.x / 2.f, worldBounds.y - 100.f});
 
     if (sprite)
     {

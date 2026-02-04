@@ -6,8 +6,8 @@ enum class SceneType
     None,
     Menu,
     Game,
-    GameOver,
     Score,
+    GameOver,
     Options
 };
 
@@ -15,10 +15,12 @@ class Scene
 {
 public:
     virtual ~Scene() = default;
-    virtual void handleEvents() = 0;
+
+    virtual void handleEvent(const sf::Event &event) = 0;
+
     virtual void update() = 0;
     virtual void render() = 0;
+    virtual SceneType getNextScene() const = 0;
 
-    virtual SceneType getNextScene() const { return SceneType::None; }
     virtual int getScore() const { return 0; }
 };

@@ -22,6 +22,8 @@ private:
     float shield;
     float maxShield;
 
+    sf::Vector2f worldBounds;
+
     sf::Texture shieldTexture;
     sf::Sprite shieldSprite;
 
@@ -42,6 +44,7 @@ public:
     SpaceShip();
     ~SpaceShip();
 
+    void setWorldBounds(sf::Vector2f bounds);
     void setWeaponsCallback(OnFireCallback callback);
     sf::FloatRect getBounds() const override;
     void destroy() override;

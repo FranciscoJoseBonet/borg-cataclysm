@@ -18,6 +18,9 @@ private:
     CollisionManager collisionManager;
     std::mt19937 rng;
 
+    sf::View view;
+    sf::Vector2f baseResolution;
+
     sf::Clock deltaClock;
     StarField stars;
 
@@ -36,13 +39,13 @@ private:
 
     void spawnEnemyWave(int count);
     void spawnPowerUp(sf::Vector2f position);
-
     void initPauseMenu();
+    void updateView();
 
 public:
     GameScene(sf::RenderWindow &window);
 
-    void handleEvents() override;
+    void handleEvent(const sf::Event &event) override;
     void update() override;
     void render() override;
 

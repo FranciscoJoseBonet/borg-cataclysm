@@ -13,60 +13,81 @@ GameScene::GameScene(sf::RenderWindow &w)
     : window(w),
       rng(std::random_device{}()),
       stars(w.getSize(), 400),
-
       pauseTitle(font),
       resumeButton(font),
       menuButton(font)
 {
+    baseResolution = sf::Vector2f((float)w.getSize().x, (float)w.getSize().y);
+    view.setSize(baseResolution);
+    view.setCenter({baseResolution.x / 2.f, baseResolution.y / 2.f});
+
     initPauseMenu();
 
-    auto size = window.getSize();
     deltaClock.restart();
     player = &manager.add<SpaceShip>();
+
+    player->setWorldBounds(baseResolution);
 
     player->setWeaponsCallback([this](ProjectileType type, const sf::Vector2f &pos, int dmg, float speed)
                                {
         sf::Vector2f direction(0.f, -1.f);
-
         if (type == ProjectileType::LASER) 
         {
            const sf::Texture& tex = resources.getTexture("../assets/img/Federation_Shot_1.png");
            
-           if (player->isDoubleShotActive())
-           {
+           if (player->isDoubleShotActive()) {
                auto& p1 = manager.add<LaserProjectile>(direction, speed, dmg, tex, Faction::Player);
                p1.setPosition({pos.x - 25.f, pos.y}); 
                auto& p2 = manager.add<LaserProjectile>(direction, speed, dmg, tex, Faction::Player);
                p2.setPosition({pos.x + 25.f, pos.y});
-           }
-           else
-           {
+           } else {
                auto& p = manager.add<LaserProjectile>(direction, speed, dmg, tex, Faction::Player);
                p.setPosition(pos);
            }
-
         }
         else if (type == ProjectileType::MISSILE) 
         {
             const sf::Texture& missileTex = resources.getTexture("../assets/img/Federation_Shot_2.png");
-            
             auto& m = manager.add<MissileProjectile>(direction, speed, 1000.f, dmg, missileTex, Faction::Player);
             m.setPosition(pos);
         } });
 
-    player->setPosition({size.x / 2.f, (size.y / 2.f) + (size.y / 2.7f)});
+    player->setPosition({baseResolution.x / 2.f, (baseResolution.y / 2.f) + (baseResolution.y / 2.7f)});
 
     collisionManager.setOnEnemyDeath([this](sf::Vector2f deathPos)
                                      {
         score += 100;
         std::uniform_real_distribution<float> chanceDist(0.f, 1.f);
-        
-        if (chanceDist(rng) <= 0.4f)
-        {
-            spawnPowerUp(deathPos);
-        } });
+        if (chanceDist(rng) <= 0.4f) spawnPowerUp(deathPos); });
 
     spawnEnemyWave(70);
+}
+
+void GameScene::updateView()
+{
+    float windowRatio = (float)window.getSize().x / (float)window.getSize().y;
+    float viewRatio = baseResolution.x / baseResolution.y;
+    float sizeX = 1;
+    float sizeY = 1;
+    float posX = 0;
+    float posY = 0;
+
+    bool horizontalSpacing = true;
+    if (windowRatio < viewRatio)
+        horizontalSpacing = false;
+
+    if (horizontalSpacing)
+    {
+        sizeX = viewRatio / windowRatio;
+        posX = (1 - sizeX) / 2.f;
+    }
+    else
+    {
+        sizeY = windowRatio / viewRatio;
+        posY = (1 - sizeY) / 2.f;
+    }
+
+    view.setViewport(sf::FloatRect({posX, posY}, {sizeX, sizeY}));
 }
 
 void GameScene::initPauseMenu()
@@ -77,9 +98,7 @@ void GameScene::initPauseMenu()
             std::cerr << "ERROR: No se pudo cargar fuente para pausa.\n";
     }
 
-    sf::Vector2u winSize = window.getSize();
-
-    pauseOverlay.setSize(sf::Vector2f((float)winSize.x, (float)winSize.y));
+    pauseOverlay.setSize(baseResolution);
     pauseOverlay.setFillColor(sf::Color(0, 0, 0, 150));
 
     pauseTitle.setFont(font);
@@ -89,7 +108,7 @@ void GameScene::initPauseMenu()
 
     auto bounds = pauseTitle.getLocalBounds();
     pauseTitle.setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
-    pauseTitle.setPosition({winSize.x / 2.f, winSize.y / 3.f});
+    pauseTitle.setPosition({baseResolution.x / 2.f, baseResolution.y / 3.f});
 
     resumeButton.setFont(font);
     resumeButton.setString("REANUDAR MISION");
@@ -98,7 +117,7 @@ void GameScene::initPauseMenu()
 
     bounds = resumeButton.getLocalBounds();
     resumeButton.setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
-    resumeButton.setPosition({winSize.x / 2.f, winSize.y / 2.f});
+    resumeButton.setPosition({baseResolution.x / 2.f, baseResolution.y / 2.f});
 
     menuButton.setFont(font);
     menuButton.setString("ABORTAR MISION (MENU)");
@@ -107,44 +126,42 @@ void GameScene::initPauseMenu()
 
     bounds = menuButton.getLocalBounds();
     menuButton.setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
-    menuButton.setPosition({winSize.x / 2.f, (winSize.y / 2.f) + 60.f});
+    menuButton.setPosition({baseResolution.x / 2.f, (baseResolution.y / 2.f) + 60.f});
 }
 
-void GameScene::handleEvents()
+void GameScene::handleEvent(const sf::Event &event)
 {
-    while (auto event = window.pollEvent())
+    if (event.is<sf::Event::Resized>())
     {
-        if (event->is<sf::Event::Closed>())
-            window.close();
+        updateView();
+    }
 
-        if (const auto *keyEvent = event->getIf<sf::Event::KeyPressed>())
+    if (const auto *keyEvent = event.getIf<sf::Event::KeyPressed>())
+    {
+        if (keyEvent->code == sf::Keyboard::Key::Escape)
         {
-            if (keyEvent->code == sf::Keyboard::Key::Escape)
-            {
-                isPaused = !isPaused;
-
-                if (!isPaused)
-                    deltaClock.restart();
-            }
+            isPaused = !isPaused;
+            if (!isPaused)
+                deltaClock.restart();
         }
+    }
 
-        if (isPaused)
+    if (isPaused)
+    {
+        if (const auto *mouseEvent = event.getIf<sf::Event::MouseButtonPressed>())
         {
-            if (const auto *mouseEvent = event->getIf<sf::Event::MouseButtonPressed>())
+            if (mouseEvent->button == sf::Mouse::Button::Left)
             {
-                if (mouseEvent->button == sf::Mouse::Button::Left)
-                {
-                    sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window), view);
 
-                    if (resumeButton.getGlobalBounds().contains(mousePos))
-                    {
-                        isPaused = false;
-                        deltaClock.restart();
-                    }
-                    else if (menuButton.getGlobalBounds().contains(mousePos))
-                    {
-                        nextScene = SceneType::Menu;
-                    }
+                if (resumeButton.getGlobalBounds().contains(mousePos))
+                {
+                    isPaused = false;
+                    deltaClock.restart();
+                }
+                else if (menuButton.getGlobalBounds().contains(mousePos))
+                {
+                    nextScene = SceneType::Menu;
                 }
             }
         }
@@ -159,7 +176,7 @@ void GameScene::update()
 
     if (isPaused)
     {
-        sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+        sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window), view);
 
         if (resumeButton.getGlobalBounds().contains(mousePos))
             resumeButton.setFillColor(sf::Color::Yellow);
@@ -192,6 +209,7 @@ void GameScene::update()
 void GameScene::render()
 {
     window.clear(sf::Color::Black);
+    window.setView(view);
 
     stars.draw(window);
     manager.draw(window);
@@ -209,7 +227,7 @@ void GameScene::render()
 
 void GameScene::spawnEnemyWave(int count)
 {
-    std::uniform_real_distribution<float> distX(50.f, window.getSize().x - 50.f);
+    std::uniform_real_distribution<float> distX(50.f, baseResolution.x - 50.f);
     std::uniform_real_distribution<float> distY(-2000.f, -100.f);
     std::uniform_real_distribution<float> distFireRate(0.5f, 1.5f);
     std::uniform_real_distribution<float> distShipSpeed(80.f, 150.f);

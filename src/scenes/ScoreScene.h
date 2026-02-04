@@ -15,6 +15,9 @@ class ScoreScene : public Scene
 private:
     sf::RenderWindow &window;
 
+    sf::View view;
+    sf::Vector2f baseResolution;
+
     sf::Font font;
     sf::Texture backgroundTexture;
 
@@ -32,13 +35,13 @@ private:
 
     void loadAndSortScores();
     void centerText(sf::Text &text, float yOffset);
-
     void setupButton(sf::Text &text, std::string label, float xOffset, float yOffset);
+    void updateView();
 
 public:
     ScoreScene(sf::RenderWindow &window);
 
-    void handleEvents() override;
+    void handleEvent(const sf::Event &event) override;
     void update() override;
     void render() override;
 
