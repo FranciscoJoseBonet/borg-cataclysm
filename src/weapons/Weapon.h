@@ -15,6 +15,7 @@ class Weapon
 {
 protected:
     std::string name;
+    float fireRate;
     float cooldownTime;
     float projectileSpeed;
     int damage;
@@ -27,6 +28,9 @@ public:
 
     void setCallback(OnFireCallback callback) { onFire = callback; }
     void setProjectileSpeed(float speed) { projectileSpeed = speed; }
+
+    void setFireRate(float rate);
+
     virtual void Shoot(const sf::Vector2f &startPos);
 
     void update(float deltaTime);

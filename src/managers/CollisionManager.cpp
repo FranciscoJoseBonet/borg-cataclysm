@@ -1,5 +1,7 @@
 #include "CollisionManager.h"
 #include "../entities/projectiles/Projectile.h"
+#include "../entities/ships/SpaceShip.h"
+#include "../entities/items/PowerUp.h"
 #include <iostream>
 
 void CollisionManager::checkCollisions(EntityManager &manager)
@@ -8,7 +10,6 @@ void CollisionManager::checkCollisions(EntityManager &manager)
 
     for (auto &entityA : entities)
     {
-
         if (!entityA->isAlive())
             continue;
 
@@ -21,6 +22,8 @@ void CollisionManager::checkCollisions(EntityManager &manager)
                     continue;
                 if (!entityB->isAlive())
                     continue;
+                if (dynamic_cast<PowerUp *>(entityB.get()))
+                    continue;
 
                 if (proj->getFaction() != entityB->getFaction())
                 {
@@ -29,10 +32,43 @@ void CollisionManager::checkCollisions(EntityManager &manager)
 
                     if (proj->getBounds().findIntersection(entityB->getBounds()))
                     {
-                        entityB->takeDamage(proj->getDamage());
-                        proj->destroy();
+                        bool wasAlive = entityB->isAlive();
 
+                        entityB->takeDamage(proj->getDamage());
+
+                        if (wasAlive && !entityB->isAlive())
+                        {
+                            if (entityB->getFaction() == Faction::Alien)
+                            {
+                                if (onEnemyDeath)
+                                    onEnemyDeath(entityB->getPosition());
+                            }
+                        }
+                        proj->destroy();
                         break;
+                    }
+                }
+            }
+        }
+
+        SpaceShip *player = dynamic_cast<SpaceShip *>(entityA.get());
+        if (player)
+        {
+            for (auto &entityB : entities)
+            {
+                if (!entityB->isAlive())
+                    continue;
+
+                PowerUp *powerUp = dynamic_cast<PowerUp *>(entityB.get());
+
+                if (powerUp)
+                {
+                    if (player->getBounds().findIntersection(powerUp->getBounds()))
+                    {
+                        std::cout << "bandera poweruppppp |||| AAAAAAAAAAAAAAAAAAAAA\n";
+                        player->applyPowerUp(powerUp->getPowerType());
+
+                        powerUp->destroy();
                     }
                 }
             }

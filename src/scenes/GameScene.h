@@ -4,6 +4,7 @@
 #include "Scene.h"
 #include "../entities/ships/SpaceShip.h"
 #include "../entities/ships/enemies/Scout.h"
+#include "../entities/items/PowerUp.h"
 
 #include "../managers/EntityManager.h"
 #include "../managers/ResourceManager.h"
@@ -17,9 +18,13 @@ private:
     ResourceManager resources;
     CollisionManager collisionManager;
     SpaceShip *player = nullptr;
+
     sf::Clock clock;
     std::mt19937 rng;
+
     void spawnEnemyWave(int count);
+    void spawnPowerUp();
+    void spawnPowerUp(sf::Vector2f position);
 
 public:
     GameScene(sf::RenderWindow &window);
