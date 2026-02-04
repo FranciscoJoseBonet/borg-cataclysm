@@ -11,6 +11,7 @@ class SpaceShip : public Entity
 private:
     sf::Texture texture;
     std::optional<sf::Sprite> sprite;
+    int lives = 3;
     float speed = 300.f;
     float invulnerabilityTimer = 0.f;
     bool isInvulnerable = false;
@@ -28,8 +29,9 @@ private:
     void enableRapidFire();
     void heal(float amount);
     void setInvulnerable(float duration);
-
     void addShield(float shieldAmount);
+
+    void respawn();
 
 public:
     SpaceShip();
@@ -43,4 +45,5 @@ public:
     void applyPowerUp(PowerUpType type);
     bool isDoubleShotActive() const { return doubleShotActive; }
     bool isInvulnerableState() const { return isInvulnerable; }
+    int getLives() const { return lives; }
 };

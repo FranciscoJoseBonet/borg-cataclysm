@@ -9,27 +9,32 @@ void CollisionManager::checkCollisions(EntityManager &manager)
     auto &entities = manager.getEntities();
 
     SpaceShip *player = nullptr;
-    for (auto &e : entities)
+    for (size_t i = 0; i < entities.size(); ++i)
     {
-        if (auto p = dynamic_cast<SpaceShip *>(e.get()))
+        if (auto p = dynamic_cast<SpaceShip *>(entities[i].get()))
         {
             player = p;
             break;
         }
     }
 
-    for (auto &entityA : entities)
+    for (size_t i = 0; i < entities.size(); ++i)
     {
+        auto &entityA = entities[i];
+
         if (!entityA->isAlive())
             continue;
 
         Projectile *proj = dynamic_cast<Projectile *>(entityA.get());
         if (proj)
         {
-            for (auto &entityB : entities)
+            for (size_t j = 0; j < entities.size(); ++j)
             {
-                if (entityA == entityB)
+                if (i == j)
                     continue;
+
+                auto &entityB = entities[j];
+
                 if (!entityB->isAlive())
                     continue;
                 if (dynamic_cast<PowerUp *>(entityB.get()))
@@ -39,26 +44,21 @@ void CollisionManager::checkCollisions(EntityManager &manager)
 
                 if (proj->getFaction() != entityB->getFaction())
                 {
-                    if (entityB.get() == player)
+                    if (entityB.get() == player && player->isInvulnerableState())
                     {
-                        if (player->isInvulnerableState())
-                        {
-                            continue;
-                        }
+                        continue;
                     }
 
                     if (proj->getBounds().findIntersection(entityB->getBounds()))
                     {
                         bool wasAlive = entityB->isAlive();
-
                         entityB->takeDamage(proj->getDamage());
 
                         if (wasAlive && !entityB->isAlive())
                         {
-                            if (entityB->getFaction() == Faction::Alien)
+                            if (entityB->getFaction() == Faction::Alien && onEnemyDeath)
                             {
-                                if (onEnemyDeath)
-                                    onEnemyDeath(entityB->getPosition());
+                                onEnemyDeath(entityB->getPosition());
                             }
                         }
 
@@ -71,10 +71,13 @@ void CollisionManager::checkCollisions(EntityManager &manager)
 
         if (player && entityA.get() == player)
         {
-            for (auto &entityB : entities)
+            for (size_t j = 0; j < entities.size(); ++j)
             {
-                if (entityA == entityB)
+                if (i == j)
                     continue;
+
+                auto &entityB = entities[j];
+
                 if (!entityB->isAlive())
                     continue;
 
@@ -99,11 +102,10 @@ void CollisionManager::checkCollisions(EntityManager &manager)
                         }
                         else
                         {
-                            float enemyHealth = entityB->getHealth();
-                            float crashDamage = enemyHealth / 2.f;
+                            float crashDamage = entityB->getHealth() / 2.f;
+                            std::cout << "¡Colisión! Daño recibido: " << crashDamage << "\n";
 
                             player->takeDamage(crashDamage);
-                            std::cout << "¡Colisión! Daño recibido: " << crashDamage << "\n";
 
                             entityB->takeDamage(1000.f);
                             if (onEnemyDeath)

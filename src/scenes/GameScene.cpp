@@ -56,7 +56,7 @@ GameScene::GameScene(sf::RenderWindow &w)
             spawnPowerUp(deathPos);
         } });
 
-    spawnEnemyWave(10);
+    spawnEnemyWave(25);
 }
 
 void GameScene::spawnEnemyWave(int count)

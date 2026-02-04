@@ -86,22 +86,15 @@ void SpaceShip::update(float deltaTime)
         invulnerabilityTimer -= deltaTime;
 
         blinkTimer += deltaTime;
-
         if (blinkTimer >= 0.1f)
         {
             blinkTimer = 0.f;
             isBlinkVisible = !isBlinkVisible;
-
             if (sprite)
             {
-                if (isBlinkVisible)
-                {
-                    sprite->setColor(sf::Color(255, 255, 255, 128));
-                }
-                else
-                {
-                    sprite->setColor(sf::Color(255, 255, 255, 50));
-                }
+                sf::Color c = sprite->getColor();
+                c.a = isBlinkVisible ? 128 : 50;
+                sprite->setColor(c);
             }
         }
 
@@ -109,7 +102,8 @@ void SpaceShip::update(float deltaTime)
         {
             isInvulnerable = false;
             if (sprite)
-                sprite->setColor(sf::Color(255, 255, 255, 255));
+                sprite->setColor(sf::Color::White);
+            std::cout << "Invulnerabilidad terminada.\n";
         }
     }
 
@@ -219,13 +213,41 @@ void SpaceShip::takeDamage(float amount)
     if (isInvulnerable)
         return;
 
-    Entity::takeDamage(amount);
-    doubleShotActive = false;
-
-    std::cout << "Jugador danado! Vida: " << health << "\n";
+    health -= amount;
+    std::cout << "Jugador dañado! Salud: " << health << "\n";
+    if (health <= 0.f)
+    {
+        lives--;
+        if (lives > 0)
+        {
+            std::cout << "¡Nave Destruida! Reapareciendo... (Vidas restantes: " << lives << ")\n";
+            respawn();
+        }
+        else
+        {
+            std::cout << "=== GAME OVER ===\n";
+            Entity::destroy();
+        }
+    }
 }
 
-void SpaceShip::addShield(float shieldAmount)
+void SpaceShip::respawn()
 {
-    heal(shieldAmount);
+    std::cout << "--- EJECUTANDO RESPAWN ---\n";
+
+    health = 100.f;
+    setPosition({540.f, 840.f});
+
+    if (sprite)
+    {
+        sprite->setPosition({0.f, 0.f});
+    }
+
+    setInvulnerable(3.0f);
+    doubleShotActive = false;
+    rapidFireTimer = 0.f;
+    if (laserLauncher)
+    {
+        laserLauncher->setFireRate(5.f);
+    }
 }
