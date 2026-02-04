@@ -18,7 +18,8 @@ private:
     ResourceManager resources;
     CollisionManager collisionManager;
     SpaceShip *player = nullptr;
-
+    bool gameOver = false;
+    int score = 0;
     sf::Clock clock;
     std::mt19937 rng;
 
@@ -31,4 +32,6 @@ public:
     void handleEvents() override;
     void update() override;
     void render() override;
+    bool isGameOver() const override { return gameOver; }
+    int getScore() const override { return score; }
 };

@@ -49,9 +49,10 @@ GameScene::GameScene(sf::RenderWindow &w)
 
     collisionManager.setOnEnemyDeath([this](sf::Vector2f deathPos)
                                      {
+        score += 100;
         std::uniform_real_distribution<float> chanceDist(0.f, 1.f);
         
-        if (chanceDist(rng) <= 0.4f)                //Chance de dropear un poweruppppppppppp
+        if (chanceDist(rng) <= 0.4f)
         {
             spawnPowerUp(deathPos);
         } });
@@ -163,9 +164,18 @@ void GameScene::update()
     static sf::Clock deltaClock;
     float dt = deltaClock.restart().asSeconds();
 
-    manager.update(dt);
-    collisionManager.checkCollisions(manager);
-    manager.refresh();
+    if (!gameOver)
+    {
+        manager.update(dt);
+        collisionManager.checkCollisions(manager);
+
+        if (player->getLives() <= 0)
+        {
+            gameOver = true;
+        }
+
+        manager.refresh();
+    }
 }
 
 void GameScene::render()

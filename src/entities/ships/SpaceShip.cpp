@@ -187,7 +187,7 @@ void SpaceShip::heal(float amount)
 void SpaceShip::enableDoubleShot()
 {
     doubleShotActive = true;
-    std::cout << "¡DOBLE CAÑÓN ACTIVADO!\n";
+    std::cout << "¡DOBLE CANION ACTIVADO!\n";
 }
 
 void SpaceShip::enableRapidFire()
@@ -220,7 +220,7 @@ void SpaceShip::takeDamage(float amount)
         return;
 
     health -= amount;
-    std::cout << "Jugador dañado! Salud: " << health << "\n";
+    std::cout << "Jugador danado! Salud: " << health << "\n";
     if (health <= 0.f)
     {
         lives--;
@@ -239,8 +239,6 @@ void SpaceShip::takeDamage(float amount)
 
 void SpaceShip::respawn()
 {
-    std::cout << "--- EJECUTANDO RESPAWN ---\n";
-
     health = 100.f;
     setPosition({540.f, 840.f});
 
