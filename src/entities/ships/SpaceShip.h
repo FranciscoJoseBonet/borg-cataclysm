@@ -28,6 +28,7 @@ private:
     void enableRapidFire();
     void heal(float amount);
     void setInvulnerable(float duration);
+
     void addShield(float shieldAmount);
 
 public:
@@ -41,4 +42,5 @@ public:
     void takeDamage(float amount) override;
     void applyPowerUp(PowerUpType type);
     bool isDoubleShotActive() const { return doubleShotActive; }
+    bool isInvulnerableState() const { return isInvulnerable; }
 };

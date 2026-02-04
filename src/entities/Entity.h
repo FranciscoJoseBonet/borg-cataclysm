@@ -25,6 +25,7 @@ public:
         if (health <= 0 && alive)
             destroy();
     }
+    float getHealth() const { return health; }
 
     void setHealth(float h) { health = h; }
 

@@ -108,7 +108,7 @@ void GameScene::spawnPowerUp(sf::Vector2f position)
 
     if (roll <= 40)
     {
-        type = PowerUpType::SHIELD;
+        type = PowerUpType::INVINCIBILITY;
     }
     else if (roll <= 70)
     {
