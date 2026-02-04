@@ -9,7 +9,9 @@
 #include "../entities/items/PowerUp.h"
 
 GameScene::GameScene(sf::RenderWindow &w)
-    : window(w), rng(std::random_device{}())
+    : window(w),
+      rng(std::random_device{}()),
+      stars(w.getSize(), 400)
 {
     auto size = window.getSize();
 
@@ -164,6 +166,8 @@ void GameScene::update()
     static sf::Clock deltaClock;
     float dt = deltaClock.restart().asSeconds();
 
+    stars.update(dt);
+
     if (!gameOver)
     {
         manager.update(dt);
@@ -181,6 +185,7 @@ void GameScene::update()
 void GameScene::render()
 {
     window.clear(sf::Color::Black);
+    stars.draw(window);
     manager.draw(window);
     window.display();
 }

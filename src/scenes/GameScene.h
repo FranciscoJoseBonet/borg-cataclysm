@@ -2,6 +2,9 @@
 #include <random>
 
 #include "Scene.h"
+
+#include "../environment/StarField.h"
+
 #include "../entities/ships/SpaceShip.h"
 #include "../entities/ships/enemies/Scout.h"
 #include "../entities/items/PowerUp.h"
@@ -22,6 +25,8 @@ private:
     int score = 0;
     sf::Clock clock;
     std::mt19937 rng;
+
+    StarField stars;
 
     void spawnEnemyWave(int count);
     void spawnPowerUp();
