@@ -17,26 +17,31 @@ class GameScene : public Scene
 {
 private:
     sf::RenderWindow &window;
-    EntityManager manager;
     ResourceManager resources;
+    EntityManager manager;
     CollisionManager collisionManager;
-    SpaceShip *player = nullptr;
-    bool gameOver = false;
-    int score = 0;
-    sf::Clock clock;
     std::mt19937 rng;
 
     StarField stars;
 
+    SpaceShip *player = nullptr;
+    bool gameOver = false;
+    int score = 0;
+
     void spawnEnemyWave(int count);
-    void spawnPowerUp();
     void spawnPowerUp(sf::Vector2f position);
 
 public:
     GameScene(sf::RenderWindow &window);
+
     void handleEvents() override;
     void update() override;
     void render() override;
-    bool isGameOver() const override { return gameOver; }
+
+    SceneType getNextScene() const override
+    {
+        return gameOver ? SceneType::GameOver : SceneType::None;
+    }
+
     int getScore() const override { return score; }
 };

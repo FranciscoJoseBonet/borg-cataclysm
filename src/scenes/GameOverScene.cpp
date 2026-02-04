@@ -111,7 +111,7 @@ void GameOverScene::handleEvents()
                 {
                     saveScoreToFile();
                     saved = true;
-                    window.close();
+                    switchToScore = true;
                 }
             }
             else if (unicode >= 32 && unicode < 128 && playerName.size() < 10)

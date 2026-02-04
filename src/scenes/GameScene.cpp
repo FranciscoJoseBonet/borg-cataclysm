@@ -104,12 +104,13 @@ void GameScene::spawnPowerUp(sf::Vector2f position)
 
     PowerUpType type;
 
-    // 0  - 35 (36%) -> SHIELD (Muy Común)
-    // 36 - 65 (30%) -> RAPID_FIRE (Común)
-    // 66 - 85 (20%) -> DOUBLE_SHOT (Poco Común)
-    // 86 - 94 (9%)  -> INVINCIBILITY (Raro)
-    // 95 - 100 (6%) -> HEAL (Muy Raro)
-    // 101 - 105 (5%) -> EXTRA_LIFE (Extremadamente Raro - casi 5%)
+    /*
+    36% -> SHIELD
+    30% -> RAPID_FIRE
+    20% -> DOUBLE_SHOT
+    9%  -> INVINCIBILITY
+    6% -> HEAL
+    5%-> EXTRA_LIFE */
 
     if (roll <= 35)
         type = PowerUpType::SHIELD;

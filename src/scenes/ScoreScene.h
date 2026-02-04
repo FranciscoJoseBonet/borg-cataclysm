@@ -1,18 +1,19 @@
 #pragma once
 #include "Scene.h"
 #include <SFML/Graphics.hpp>
+#include <vector>
 #include <string>
-#include <fstream>
-#include <cmath>
 
-class GameOverScene : public Scene
+struct ScoreEntry
+{
+    std::string name;
+    int points;
+};
+
+class ScoreScene : public Scene
 {
 private:
     sf::RenderWindow &window;
-
-    int score;
-    bool saved;
-    bool switchToScore = false;
 
     sf::Font font;
     sf::Texture backgroundTexture;
@@ -21,23 +22,21 @@ private:
     sf::RectangleShape panel;
 
     sf::Text titleText;
-    sf::Text scoreText;
-    sf::Text promptText;
-    sf::Text nameInputText;
     sf::Text infoText;
+    std::vector<sf::Text> scoreTexts;
 
     float totalTime;
-    std::string playerName;
+    bool requestRestart = false;
 
-    void saveScoreToFile();
+    void loadAndSortScores();
     void centerText(sf::Text &text, float yOffset);
 
 public:
-    GameOverScene(sf::RenderWindow &window, int finalScore);
+    ScoreScene(sf::RenderWindow &window);
 
     SceneType getNextScene() const override
     {
-        return switchToScore ? SceneType::Score : SceneType::None;
+        return requestRestart ? SceneType::Game : SceneType::None;
     }
 
     void handleEvents() override;
