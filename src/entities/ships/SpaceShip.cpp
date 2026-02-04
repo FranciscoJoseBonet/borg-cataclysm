@@ -102,9 +102,9 @@ void SpaceShip::update(float deltaTime)
 
     sf::Vector2f pos = getPosition();
 
-    float minX = 50.f;
-    float maxX = 1230.f;
-    float minY = 50.f;
+    float minX = 30.f;
+    float maxX = 1055.f;
+    float minY = 40.f;
     float maxY = 860.f;
 
     if (pos.x < minX)
