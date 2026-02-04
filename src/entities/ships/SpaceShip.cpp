@@ -167,6 +167,12 @@ void SpaceShip::applyPowerUp(PowerUpType type)
     case PowerUpType::INVINCIBILITY:
         setInvulnerable(5.0f);
         break;
+    case PowerUpType::HEAL:
+        heal(100.f);
+        break;
+    case PowerUpType::EXTRA_LIFE:
+        lives++;
+        break;
     }
 }
 

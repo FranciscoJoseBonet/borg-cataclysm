@@ -6,7 +6,9 @@ enum class PowerUpType
     SHIELD,
     DOUBLE_SHOT,
     RAPID_FIRE,
-    INVINCIBILITY
+    INVINCIBILITY,
+    EXTRA_LIFE,
+    HEAL
 };
 
 class PowerUp : public Entity

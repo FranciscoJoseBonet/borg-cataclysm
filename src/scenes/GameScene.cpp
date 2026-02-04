@@ -96,32 +96,30 @@ void GameScene::spawnEnemyWave(int count)
 
 void GameScene::spawnPowerUp(sf::Vector2f position)
 {
-    std::uniform_int_distribution<int> distChance(0, 100);
+    std::uniform_int_distribution<int> distChance(0, 105);
     int roll = distChance(rng);
 
     PowerUpType type;
 
-    // 0  a 40  (40% chance) -> SHIELD
-    // 41 a 70  (30% chance) -> RAPID_FIRE
-    // 71 a 90  (20% chance) -> DOUBLE_SHOT
-    // 91 a 100 (10% chance) -> INVINCIBILITY
+    // 0  - 35 (36%) -> SHIELD (Muy Común)
+    // 36 - 65 (30%) -> RAPID_FIRE (Común)
+    // 66 - 85 (20%) -> DOUBLE_SHOT (Poco Común)
+    // 86 - 94 (9%)  -> INVINCIBILITY (Raro)
+    // 95 - 100 (6%) -> HEAL (Muy Raro)
+    // 101 - 105 (5%) -> EXTRA_LIFE (Extremadamente Raro - casi 5%)
 
-    if (roll <= 40)
-    {
-        type = PowerUpType::INVINCIBILITY;
-    }
-    else if (roll <= 70)
-    {
+    if (roll <= 35)
+        type = PowerUpType::SHIELD;
+    else if (roll <= 65)
         type = PowerUpType::RAPID_FIRE;
-    }
-    else if (roll <= 90)
-    {
+    else if (roll <= 85)
         type = PowerUpType::DOUBLE_SHOT;
-    }
-    else
-    {
+    else if (roll <= 94)
         type = PowerUpType::INVINCIBILITY;
-    }
+    else if (roll <= 100)
+        type = PowerUpType::HEAL;
+    else
+        type = PowerUpType::EXTRA_LIFE;
 
     std::string texturePath;
     switch (type)
@@ -137,6 +135,12 @@ void GameScene::spawnPowerUp(sf::Vector2f position)
         break;
     case PowerUpType::INVINCIBILITY:
         texturePath = "../assets/img/PU_Invencibility.png";
+        break;
+    case PowerUpType::HEAL:
+        texturePath = "../assets/img/PU_Heal.png";
+        break;
+    case PowerUpType::EXTRA_LIFE:
+        texturePath = "../assets/img/PU_Extra_Life.png";
         break;
     }
 
