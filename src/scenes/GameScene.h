@@ -1,13 +1,19 @@
 #pragma once
 #include <random>
 #include "Scene.h"
+
 #include "../environment/StarField.h"
+
 #include "../entities/ships/SpaceShip.h"
 #include "../entities/ships/enemies/Scout.h"
 #include "../entities/items/PowerUp.h"
+
 #include "../managers/EntityManager.h"
 #include "../managers/ResourceManager.h"
 #include "../managers/CollisionManager.h"
+
+#include "../effects/Explosion.h"
+
 #include "../ui/HUD.h"
 
 class GameScene : public Scene
@@ -40,6 +46,10 @@ private:
     sf::Text menuButton;
 
     SceneType nextScene = SceneType::None;
+
+    std::vector<std::unique_ptr<Explosion>> explosions;
+
+    int previousLives = 3;
 
     void spawnEnemyWave(int count);
     void spawnPowerUp(sf::Vector2f position);

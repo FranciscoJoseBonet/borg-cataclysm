@@ -1,6 +1,8 @@
 #include "GameScene.h"
 #include "../core/Game.h"
+#include "../effects/Explosion.h"
 #include <iostream>
+#include <algorithm>
 
 #include "../entities/ships/SpaceShip.h"
 #include "../entities/ships/enemies/Scout.h"
@@ -30,6 +32,7 @@ GameScene::GameScene(sf::RenderWindow &w)
 
     deltaClock.restart();
     player = &manager.add<SpaceShip>();
+    previousLives = 3;
 
     player->setWorldBounds(baseResolution);
 
@@ -62,10 +65,32 @@ GameScene::GameScene(sf::RenderWindow &w)
     collisionManager.setOnEnemyDeath([this](sf::Vector2f deathPos)
                                      {
         score += 100;
+
+        const sf::Texture& expTex = resources.getTexture("../assets/img/SS_Klingon_Destruction.png");
+        
+        int cols = 2;
+        int rows = 3;
+        int frameWidth = expTex.getSize().x / cols;
+        int frameHeight = expTex.getSize().y / rows;
+        
+        auto explosion = std::make_unique<Explosion>(
+            deathPos, 
+            expTex, 
+            sf::Vector2i(frameWidth, frameHeight), 
+            cols * rows, 
+            0.4f
+        );
+        
+
+        explosion->setRotation(sf::degrees(90.f));
+        explosion->setScale({0.4f, 0.4f}); 
+        
+        explosions.push_back(std::move(explosion));
+
         std::uniform_real_distribution<float> chanceDist(0.f, 1.f);
         if (chanceDist(rng) <= 0.4f) spawnPowerUp(deathPos); });
 
-    spawnEnemyWave(15);
+    spawnEnemyWave(30);
 }
 
 void GameScene::updateView()
@@ -202,7 +227,43 @@ void GameScene::update()
     if (!gameOver)
     {
         manager.update(dt);
+
+        sf::Vector2f lastPlayerPos = player->getPosition();
+
         collisionManager.checkCollisions(manager);
+
+        if (player->getLives() < previousLives)
+        {
+            const sf::Texture &pExpTex = resources.getTexture("../assets/img/SS_Enterprise_destruction.png");
+
+            int cols = 3;
+            int rows = 4;
+            int frameWidth = pExpTex.getSize().x / cols;
+            int frameHeight = pExpTex.getSize().y / rows;
+
+            auto exp = std::make_unique<Explosion>(
+                lastPlayerPos,
+                pExpTex,
+                sf::Vector2i(frameWidth, frameHeight),
+                cols * rows,
+                1.0f);
+
+            exp->setScale({0.6f, 0.6f});
+
+            explosions.push_back(std::move(exp));
+
+            previousLives = player->getLives();
+        }
+
+        for (auto &exp : explosions)
+        {
+            exp->update(dt);
+        }
+
+        explosions.erase(std::remove_if(explosions.begin(), explosions.end(),
+                                        [](const std::unique_ptr<Explosion> &e)
+                                        { return e->isFinished(); }),
+                         explosions.end());
 
         hud.updateStats(score, player->getLives(), player->getHealth(), 100.f, player->getShield(), player->getMaxShield());
         hud.updatePowerUps(player->isDoubleShotActive(), player->isRapidFireActive(), player->isInvulnerableState());
@@ -222,6 +283,11 @@ void GameScene::render()
     window.setView(view);
     stars.draw(window);
     manager.draw(window);
+
+    for (const auto &exp : explosions)
+    {
+        window.draw(*exp);
+    }
 
     window.setView(hudView);
     hud.draw(window);
