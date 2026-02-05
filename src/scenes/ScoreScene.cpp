@@ -8,19 +8,14 @@
 ScoreScene::ScoreScene(sf::RenderWindow &w)
     : window(w),
       background(backgroundTexture),
-      titleText(font),
-      playAgainButton(font),
-      menuButton(font),
+      titleText(UITheme::getInstance().getFont()),
+      playAgainButton(UITheme::getInstance().getFont()),
+      menuButton(UITheme::getInstance().getFont()),
       totalTime(0.f)
 {
     baseResolution = sf::Vector2f((float)w.getSize().x, (float)w.getSize().y);
     view.setSize(baseResolution);
     view.setCenter({baseResolution.x / 2.f, baseResolution.y / 2.f});
-
-    if (!font.openFromFile("../assets/fonts/Star_Trek_Enterprise_Future.ttf"))
-    {
-        std::cerr << "ERROR: No se pudo cargar la fuente.\n";
-    }
 
     if (!backgroundTexture.loadFromFile("../assets/img/GAMEOVER_BG.jpg"))
     {
@@ -48,9 +43,9 @@ ScoreScene::ScoreScene(sf::RenderWindow &w)
 
     titleText.setString("TABLA DE POSICIONES");
     titleText.setCharacterSize(60);
-    titleText.setFillColor(sf::Color::White);
-    titleText.setOutlineColor(sf::Color::White);
-    titleText.setOutlineThickness(1.f);
+
+    UITheme::applyTitleStyle(titleText);
+
     centerText(titleText, -280.f);
 
     setupButton(playAgainButton, "VOLVER A JUGAR", -150.f, 260.f);
@@ -90,7 +85,8 @@ void ScoreScene::setupButton(sf::Text &text, std::string label, float xOffset, f
 {
     text.setString(label);
     text.setCharacterSize(25);
-    text.setFillColor(sf::Color(200, 200, 200));
+
+    UITheme::applyMenuOptionStyle(text, false);
 
     auto bounds = text.getLocalBounds();
     text.setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
@@ -130,7 +126,7 @@ void ScoreScene::loadAndSortScores()
             line += " ";
         line += std::to_string(entry.points);
 
-        sf::Text text(font);
+        sf::Text text(UITheme::getInstance().getFont());
         text.setString(line);
         text.setCharacterSize(30);
 
@@ -150,10 +146,12 @@ void ScoreScene::loadAndSortScores()
 
     if (scoreTexts.empty())
     {
-        sf::Text text(font);
+        sf::Text text(UITheme::getInstance().getFont());
         text.setString("NO HAY DATOS AUN");
         text.setCharacterSize(30);
-        text.setFillColor(sf::Color::White);
+
+        UITheme::applyBodyStyle(text);
+
         centerText(text, 0.f);
         scoreTexts.push_back(text);
     }
@@ -203,16 +201,8 @@ void ScoreScene::update()
 
     auto updateButtonHover = [&](sf::Text &btn)
     {
-        if (btn.getGlobalBounds().contains(mousePos))
-        {
-            btn.setFillColor(sf::Color(255, 215, 0));
-            btn.setScale({1.1f, 1.1f});
-        }
-        else
-        {
-            btn.setFillColor(sf::Color(200, 200, 200));
-            btn.setScale({1.0f, 1.0f});
-        }
+        bool isHover = btn.getGlobalBounds().contains(mousePos);
+        UITheme::applyMenuOptionStyle(btn, isHover);
     };
 
     updateButtonHover(playAgainButton);

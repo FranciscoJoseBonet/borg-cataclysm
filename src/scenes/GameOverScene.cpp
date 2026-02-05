@@ -8,22 +8,16 @@ GameOverScene::GameOverScene(sf::RenderWindow &w, int finalScore)
       score(finalScore),
       saved(false),
       background(backgroundTexture),
-
-      titleText(font),
-      scoreText(font),
-      promptText(font),
-      nameInputText(font),
-      infoText(font),
+      titleText(UITheme::getInstance().getFont()),
+      scoreText(UITheme::getInstance().getFont()),
+      promptText(UITheme::getInstance().getFont()),
+      nameInputText(UITheme::getInstance().getFont()),
+      infoText(UITheme::getInstance().getFont()),
       totalTime(0.f)
 {
     baseResolution = sf::Vector2f((float)w.getSize().x, (float)w.getSize().y);
     view.setSize(baseResolution);
     view.setCenter({baseResolution.x / 2.f, baseResolution.y / 2.f});
-
-    if (!font.openFromFile("../assets/fonts/Star_Trek_Enterprise_Future.ttf"))
-    {
-        std::cerr << "ERROR: No se pudo cargar la fuente.\n";
-    }
 
     if (!backgroundTexture.loadFromFile("../assets/img/GAMEOVER_BG.jpg"))
     {
@@ -53,34 +47,30 @@ GameOverScene::GameOverScene(sf::RenderWindow &w, int finalScore)
 
     titleText.setString("GAME OVER");
     titleText.setCharacterSize(90);
-    titleText.setFillColor(sf::Color(255, 0, 0));
-
-    titleText.setOutlineColor(sf::Color(255, 125, 125));
+    titleText.setFillColor(UITheme::LCARS_Red);
+    titleText.setOutlineColor(sf::Color(50, 0, 0));
     titleText.setOutlineThickness(2.f);
     centerText(titleText, -220.f);
 
     scoreText.setString("PUNTUACION: " + std::to_string(score));
     scoreText.setCharacterSize(45);
-    scoreText.setFillColor(sf::Color::White);
+    UITheme::applyHeaderStyle(scoreText);
     centerText(scoreText, -100.f);
 
     promptText.setString("INGRESE SU NOMBRE CADETE:");
     promptText.setCharacterSize(35);
-    promptText.setFillColor(sf::Color(222, 156, 29));
+    promptText.setFillColor(UITheme::LCARS_Gold);
     centerText(promptText, 0.f);
 
     nameInputText.setString("_");
     nameInputText.setCharacterSize(60);
-    nameInputText.setFillColor(sf::Color(222, 156, 29));
+    nameInputText.setFillColor(UITheme::LCARS_Orange);
     centerText(nameInputText, 60.f);
 
     infoText.setString("[ ENTER PARA GUARDAR - EL KOBAYASHI MARU ERA MAS FACIL... ]");
     infoText.setCharacterSize(20);
-    infoText.setFillColor(sf::Color(255, 255, 255));
+    UITheme::applyBodyStyle(infoText);
     centerText(infoText, 200.f);
-
-    infoText.setOutlineColor(sf::Color::Black);
-    infoText.setOutlineThickness(1.f);
 }
 
 void GameOverScene::updateView()

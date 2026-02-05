@@ -1,5 +1,6 @@
 #pragma once
 #include "Scene.h"
+#include "../ui/UITheme.h"
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <string>
@@ -18,7 +19,6 @@ private:
     sf::View view;
     sf::Vector2f baseResolution;
 
-    sf::Font font;
     sf::Texture backgroundTexture;
 
     sf::Sprite background;

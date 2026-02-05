@@ -1,28 +1,22 @@
 #include "MenuScene.h"
+#include "../ui/UITheme.h"
 #include <iostream>
 #include <cmath>
 
 MenuScene::MenuScene(sf::RenderWindow &w)
     : window(w),
       stars(w.getSize(), 400),
-      titleText(font)
+      titleText(UITheme::getInstance().getFont())
 {
     baseResolution = sf::Vector2f((float)w.getSize().x, (float)w.getSize().y);
 
     view.setSize(baseResolution);
     view.setCenter({baseResolution.x / 2.f, baseResolution.y / 2.f});
 
-    if (!font.openFromFile("../assets/fonts/Star_Trek_Enterprise_Future.ttf"))
-    {
-        if (!font.openFromFile("../assets/fonts/pixel_font.ttf"))
-            std::cerr << "ERROR no hay fuentes disponibles.\n";
-    }
-
     titleText.setString("BORG CATACLYSM");
     titleText.setCharacterSize(100);
-    titleText.setFillColor(sf::Color(255, 215, 0));
-    titleText.setOutlineColor(sf::Color(100, 0, 0));
-    titleText.setOutlineThickness(4.f);
+
+    UITheme::applyTitleStyle(titleText);
 
     centerText(titleText, -200.f);
 
@@ -41,10 +35,11 @@ void MenuScene::initMenuOptions()
 
     for (size_t i = 0; i < labels.size(); ++i)
     {
-        sf::Text text(font);
+        sf::Text text(UITheme::getInstance().getFont());
         text.setString(labels[i]);
         text.setCharacterSize(40);
-        text.setFillColor(sf::Color(200, 200, 200));
+
+        UITheme::applyMenuOptionStyle(text, false);
 
         centerText(text, startY + (i * spacing));
 
@@ -128,13 +123,11 @@ void MenuScene::update()
         if (menuOptions[i].getGlobalBounds().contains(mouseWorld))
         {
             selectedItemIndex = static_cast<int>(i);
-            menuOptions[i].setFillColor(sf::Color(255, 215, 0));
-            menuOptions[i].setScale({1.1f, 1.1f});
+            UITheme::applyMenuOptionStyle(menuOptions[i], true);
         }
         else
         {
-            menuOptions[i].setFillColor(sf::Color(200, 200, 200));
-            menuOptions[i].setScale({1.0f, 1.0f});
+            UITheme::applyMenuOptionStyle(menuOptions[i], false);
         }
     }
 }

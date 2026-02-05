@@ -15,7 +15,6 @@ private:
 
     StarField stars;
 
-    sf::Font font;
     sf::Text titleText;
     std::vector<sf::Text> menuOptions;
 

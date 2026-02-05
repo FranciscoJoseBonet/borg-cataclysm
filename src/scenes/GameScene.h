@@ -1,6 +1,7 @@
 #pragma once
 #include <random>
 #include "Scene.h"
+#include "../ui/UITheme.h"
 
 #include "../environment/StarField.h"
 
@@ -39,7 +40,6 @@ private:
     int score = 0;
 
     bool isPaused = false;
-    sf::Font font;
     sf::RectangleShape pauseOverlay;
     sf::Text pauseTitle;
     sf::Text resumeButton;

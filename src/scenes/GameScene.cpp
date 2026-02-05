@@ -18,9 +18,9 @@ GameScene::GameScene(sf::RenderWindow &w)
     : window(w),
       rng(std::random_device{}()),
       stars(w.getSize(), 400),
-      pauseTitle(font),
-      resumeButton(font),
-      menuButton(font)
+      pauseTitle(UITheme::getInstance().getFont()),
+      resumeButton(UITheme::getInstance().getFont()),
+      menuButton(UITheme::getInstance().getFont())
 {
     baseResolution = sf::Vector2f((float)w.getSize().x, (float)w.getSize().y);
 
@@ -119,6 +119,10 @@ GameScene::GameScene(sf::RenderWindow &w)
         );
         effect->move({0.f, -15.f});
         effect->setScale({0.6f, 0.6f});
+        
+        std::uniform_real_distribution<float> rotDist(0.f, 360.f);
+        effect->setRotation(sf::degrees(rotDist(rng)));
+
         explosions.push_back(std::move(effect)); });
 
     spawnEnemyWave(15);
@@ -154,37 +158,28 @@ void GameScene::updateView()
 
 void GameScene::initPauseMenu()
 {
-    if (!font.openFromFile("../assets/fonts/Star_Trek_Enterprise_Future.ttf"))
-    {
-        if (!font.openFromFile("../assets/fonts/pixel_font.ttf"))
-            std::cerr << "ERROR: No se pudo cargar fuente para pausa.\n";
-    }
-
     pauseOverlay.setSize(baseResolution);
     pauseOverlay.setFillColor(sf::Color(0, 0, 0, 150));
 
-    pauseTitle.setFont(font);
     pauseTitle.setString("SISTEMA PAUSADO");
     pauseTitle.setCharacterSize(60);
-    pauseTitle.setFillColor(sf::Color::Cyan);
+    UITheme::applyTitleStyle(pauseTitle);
 
     auto bounds = pauseTitle.getLocalBounds();
     pauseTitle.setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
     pauseTitle.setPosition({baseResolution.x / 2.f, baseResolution.y / 3.f});
 
-    resumeButton.setFont(font);
     resumeButton.setString("REANUDAR MISION");
     resumeButton.setCharacterSize(30);
-    resumeButton.setFillColor(sf::Color::White);
+    UITheme::applyMenuOptionStyle(resumeButton, false);
 
     bounds = resumeButton.getLocalBounds();
     resumeButton.setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
     resumeButton.setPosition({baseResolution.x / 2.f, baseResolution.y / 2.f});
 
-    menuButton.setFont(font);
     menuButton.setString("ABORTAR MISION (MENU)");
     menuButton.setCharacterSize(30);
-    menuButton.setFillColor(sf::Color::White);
+    UITheme::applyMenuOptionStyle(menuButton, false);
 
     bounds = menuButton.getLocalBounds();
     menuButton.setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
@@ -240,15 +235,11 @@ void GameScene::update()
     {
         sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window), view);
 
-        if (resumeButton.getGlobalBounds().contains(mousePos))
-            resumeButton.setFillColor(sf::Color::Yellow);
-        else
-            resumeButton.setFillColor(sf::Color::White);
+        bool resumeHover = resumeButton.getGlobalBounds().contains(mousePos);
+        UITheme::applyMenuOptionStyle(resumeButton, resumeHover);
 
-        if (menuButton.getGlobalBounds().contains(mousePos))
-            menuButton.setFillColor(sf::Color::Red);
-        else
-            menuButton.setFillColor(sf::Color::White);
+        bool menuHover = menuButton.getGlobalBounds().contains(mousePos);
+        UITheme::applyMenuOptionStyle(menuButton, menuHover);
 
         return;
     }

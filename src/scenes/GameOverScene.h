@@ -1,5 +1,6 @@
 #pragma once
 #include "Scene.h"
+#include "../ui/UITheme.h"
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <fstream>
@@ -17,7 +18,6 @@ private:
     bool saved;
     bool switchToScore = false;
 
-    sf::Font font;
     sf::Texture backgroundTexture;
 
     sf::Sprite background;

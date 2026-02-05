@@ -6,51 +6,45 @@
 
 SelectionScene::SelectionScene(sf::RenderWindow &w)
     : window(w),
-      titleText(font),
-      shipNameText(font),
-      descriptionText(font),
-      leftArrow(font),
-      rightArrow(font)
+      titleText(UITheme::getInstance().getFont()),
+      shipNameText(UITheme::getInstance().getFont()),
+      descriptionText(UITheme::getInstance().getFont()),
+      leftArrow(UITheme::getInstance().getFont()),
+      rightArrow(UITheme::getInstance().getFont())
 {
     baseResolution = sf::Vector2f((float)w.getSize().x, (float)w.getSize().y);
     view.setSize(baseResolution);
     view.setCenter({baseResolution.x / 2.f, baseResolution.y / 2.f});
 
-    if (!font.openFromFile("../assets/fonts/Star_Trek_Enterprise_Future.ttf"))
-    {
-        if (!font.openFromFile("../assets/fonts/pixel_font.ttf"))
-            std::cerr << "ERROR: No se pudo cargar fuente en SelectionScene.\n";
-    }
-
     titleText.setString("SELECCIONAR NAVE");
     titleText.setCharacterSize(60);
-    titleText.setFillColor(sf::Color(255, 215, 0));
+    UITheme::applyTitleStyle(titleText);
+
     auto bounds = titleText.getLocalBounds();
     titleText.setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
     titleText.setPosition({baseResolution.x / 2.f, baseResolution.y * 0.08f});
 
     shipNameText.setCharacterSize(54);
     shipNameText.setFillColor(sf::Color::White);
-
     shipNameText.setOutlineColor(sf::Color::Black);
-    shipNameText.setOutlineThickness(2.f);
+    shipNameText.setOutlineThickness(3.f);
 
-    descriptionText.setCharacterSize(26);
-    descriptionText.setFillColor(sf::Color(220, 220, 220));
+    descriptionText.setCharacterSize(28);
+    descriptionText.setFillColor(sf::Color(255, 255, 255));
     descriptionText.setOutlineColor(sf::Color::Black);
-    descriptionText.setOutlineThickness(1.5f);
+    descriptionText.setOutlineThickness(2.5f);
 
     leftArrow.setString("<");
     leftArrow.setCharacterSize(96);
-    leftArrow.setFillColor(sf::Color::Cyan);
-    leftArrow.setOutlineColor(sf::Color::Black);
-    leftArrow.setOutlineThickness(2.f);
+    leftArrow.setFillColor(UITheme::LCARS_Periwinkle);
+    leftArrow.setOutlineColor(UITheme::LCARS_DarkBorder);
+    leftArrow.setOutlineThickness(3.f);
 
     rightArrow.setString(">");
     rightArrow.setCharacterSize(96);
-    rightArrow.setFillColor(sf::Color::Cyan);
-    rightArrow.setOutlineColor(sf::Color::Black);
-    rightArrow.setOutlineThickness(2.f);
+    rightArrow.setFillColor(UITheme::LCARS_Periwinkle);
+    rightArrow.setOutlineColor(UITheme::LCARS_DarkBorder);
+    rightArrow.setOutlineThickness(3.f);
 
     currentIndex = 0;
     updateUI();
@@ -148,6 +142,10 @@ void SelectionScene::handleEvent(const sf::Event &event)
             GameSession::selectedShipIndex = currentIndex;
             nextScene = SceneType::Game;
         }
+        else if (keyEvent->code == sf::Keyboard::Key::Escape)
+        {
+            nextScene = SceneType::Menu;
+        }
     }
 
     if (const auto *mouseEvent = event.getIf<sf::Event::MouseButtonPressed>())
@@ -197,16 +195,18 @@ void SelectionScene::drawStatBar(sf::RenderTarget &target, const std::string &la
     float centerX = baseResolution.x / 2.f;
     float startX = centerX - (barWidth / 2.f) + 40.f;
 
-    sf::Text labelText(font);
+    sf::Text labelText(UITheme::getInstance().getFont());
     labelText.setString(label);
-    labelText.setCharacterSize(29);
+    labelText.setCharacterSize(24);
+
     labelText.setFillColor(sf::Color::White);
     labelText.setOutlineColor(sf::Color::Black);
-    labelText.setOutlineThickness(1.f);
+    labelText.setOutlineThickness(2.0f);
 
     auto labelBounds = labelText.getLocalBounds();
     labelText.setOrigin({labelBounds.size.x, labelBounds.size.y / 2.f});
-    labelText.setPosition({startX - 10.f, yPos + (barHeight / 2.f)});
+
+    labelText.setPosition({startX - 15.f, yPos + (barHeight / 2.f) - 5.f});
     target.draw(labelText);
 
     sf::RectangleShape bgBar({barWidth, barHeight});
@@ -243,7 +243,7 @@ void SelectionScene::render()
     const auto &data = ShipRepository::getShip(currentIndex);
 
     float startStatsY = baseResolution.y * 0.65f;
-    float gap = 25.f;
+    float gap = 30.f;
 
     drawStatBar(window, "INTEGRIDAD", data.maxHealth, 200.f, startStatsY, sf::Color::Green);
     drawStatBar(window, "VELOCIDAD", data.speed, 400.f, startStatsY + gap, sf::Color::Cyan);
@@ -254,20 +254,20 @@ void SelectionScene::render()
     float fireRate = (data.primaryWeapon.cooldown > 0) ? (1.f / data.primaryWeapon.cooldown) : 0.f;
     drawStatBar(window, "CADENCIA", fireRate, 8.f, startStatsY + gap * 3, sf::Color::Yellow);
 
-    sf::Text enterText(font);
-    enterText.setString("PRESIONA [ENTER] PARA INICIAR");
-    enterText.setCharacterSize(36);
-    enterText.setFillColor(sf::Color(255, 255, 255, 180));
+    sf::Text enterText(UITheme::getInstance().getFont());
+    enterText.setString("[ESC] MENU PRINCIPAL      [ENTER] INICIAR MISION");
+    enterText.setCharacterSize(30);
+    enterText.setFillColor(sf::Color(255, 255, 255));
     enterText.setOutlineColor(sf::Color::Black);
-    enterText.setOutlineThickness(1.f);
+    enterText.setOutlineThickness(2.5f);
 
     auto b = enterText.getLocalBounds();
     enterText.setOrigin({b.size.x / 2.f, b.size.y / 2.f});
     enterText.setPosition({baseResolution.x / 2.f, baseResolution.y * 0.85f});
 
     static float timer = 0;
-    timer += 0.05f;
-    if ((int)(timer * 2) % 2 == 0)
+    timer += 0.01f;
+    if ((int)timer % 2 == 0)
         window.draw(enterText);
 
     window.display();

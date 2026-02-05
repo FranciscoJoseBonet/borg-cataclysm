@@ -2,6 +2,7 @@
 #include "Scene.h"
 #include <SFML/Graphics.hpp>
 #include "../managers/ResourceManager.h"
+#include "../ui/UITheme.h"
 #include <vector>
 #include <optional>
 
@@ -13,8 +14,6 @@ private:
 
     sf::View view;
     sf::Vector2f baseResolution;
-
-    sf::Font font;
 
     sf::Text titleText;
     sf::Text shipNameText;
