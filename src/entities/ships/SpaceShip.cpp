@@ -14,14 +14,14 @@ SpaceShip::SpaceShip()
 
     if (!shieldTexture.loadFromFile("../assets/img/shield.png"))
     {
-        std::cerr << "ERROR: No se encontro shield.png - Usando textura de emergencia.\n";
+        std::cerr << "Error no se encontro la imagen de shield.png\n";
 
         sf::Image temp;
         temp.resize({100, 100}, sf::Color::White);
 
         if (!shieldTexture.loadFromImage(temp))
         {
-            std::cerr << "Error fatal creando textura temporal.\n";
+            std::cerr << "Error, creando textura temporal\n";
         }
     }
 
@@ -35,7 +35,7 @@ SpaceShip::SpaceShip()
     sf::Image img;
     if (!img.loadFromFile("../assets/img/enterprise-001.PNG"))
     {
-        std::cerr << "ERROR: No se cargo la nave.\n";
+        std::cerr << "Error no se cargo la nave\n";
         img.resize({20, 20}, sf::Color::Red);
     }
 
@@ -149,7 +149,6 @@ void SpaceShip::update(float deltaTime)
             isInvulnerable = false;
             if (sprite)
                 sprite->setColor(sf::Color::White);
-            std::cout << "Invulnerabilidad terminada.\n";
         }
     }
 
@@ -223,8 +222,6 @@ void SpaceShip::addShield(float amount)
     shield += amount;
     if (shield > maxShield)
         shield = maxShield;
-
-    std::cout << "Escudo regenerado! Nivel actual: " << shield << "\n";
 }
 
 void SpaceShip::heal(float amount)
@@ -232,13 +229,11 @@ void SpaceShip::heal(float amount)
     health += amount;
     if (health > 100.f)
         health = 100.f;
-    std::cout << "Curado! Vida actual: " << health << "\n";
 }
 
 void SpaceShip::enableDoubleShot()
 {
     doubleShotActive = true;
-    std::cout << "¡DOBLE CANION ACTIVADO!\n";
 }
 
 void SpaceShip::enableRapidFire()
@@ -247,7 +242,6 @@ void SpaceShip::enableRapidFire()
     {
         laserLauncher->setFireRate(15.f);
         rapidFireTimer = 5.0f;
-        std::cout << "Rapid Fire Activado!\n";
     }
 }
 
@@ -259,7 +253,6 @@ void SpaceShip::setInvulnerable(float duration)
     isBlinkVisible = true;
     if (sprite)
         sprite->setColor(sf::Color(255, 255, 255, 128));
-    std::cout << "¡Escudos Invencibles Activados!\n";
 }
 
 void SpaceShip::takeDamage(float amount)
@@ -275,13 +268,11 @@ void SpaceShip::takeDamage(float amount)
         {
             float damageRemaining = damageToShield - shield;
             shield = 0;
-            std::cout << "¡ESCUDO ROTO!\n";
             health -= damageRemaining;
         }
         else
         {
             shield -= damageToShield;
-            std::cout << "Escudo absorbe impacto. Restante: " << shield << "\n";
             return;
         }
     }
@@ -290,19 +281,15 @@ void SpaceShip::takeDamage(float amount)
         health -= amount;
     }
 
-    std::cout << "Jugador danado! Salud: " << health << "\n";
-
     if (health <= 0.f)
     {
         lives--;
         if (lives > 0)
         {
-            std::cout << "¡Nave Destruida! Reapareciendo... (Vidas restantes: " << lives << ")\n";
             respawn();
         }
         else
         {
-            std::cout << "=== GAME OVER ===\n";
             Entity::destroy();
         }
     }

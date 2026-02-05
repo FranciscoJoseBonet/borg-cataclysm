@@ -10,13 +10,12 @@ MenuScene::MenuScene(sf::RenderWindow &w)
     baseResolution = sf::Vector2f((float)w.getSize().x, (float)w.getSize().y);
 
     view.setSize(baseResolution);
-
     view.setCenter({baseResolution.x / 2.f, baseResolution.y / 2.f});
 
     if (!font.openFromFile("../assets/fonts/Star_Trek_Enterprise_Future.ttf"))
     {
         if (!font.openFromFile("../assets/fonts/pixel_font.ttf"))
-            std::cerr << "ERROR CRITICO: No hay fuentes disponibles.\n";
+            std::cerr << "ERROR no hay fuentes disponibles.\n";
     }
 
     titleText.setString("BORG CATACLYSM");
@@ -32,7 +31,11 @@ MenuScene::MenuScene(sf::RenderWindow &w)
 
 void MenuScene::initMenuOptions()
 {
-    std::vector<std::string> labels = {"INICIAR MISION", "REGISTROS DE VUELO", "CONFIGURACION DE NAVE"};
+    std::vector<std::string> labels = {
+        "INICIAR MISION",
+        "REGISTROS DE VUELO",
+        "CONFIGURACION DE NAVE",
+        "SALIR AL ESCRITORIO"};
 
     float startY = 50.f;
     float spacing = 80.f;
