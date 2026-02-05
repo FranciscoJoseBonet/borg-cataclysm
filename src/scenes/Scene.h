@@ -8,7 +8,8 @@ enum class SceneType
     Game,
     Score,
     GameOver,
-    Options
+    Options,
+    Selection
 };
 
 class Scene

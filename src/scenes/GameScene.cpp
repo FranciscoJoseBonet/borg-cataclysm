@@ -4,6 +4,9 @@
 #include <iostream>
 #include <algorithm>
 
+#include "../data/ShipRepository.h"
+#include "../core/GameSession.h"
+
 #include "../entities/ships/SpaceShip.h"
 #include "../entities/ships/enemies/Scout.h"
 
@@ -31,7 +34,14 @@ GameScene::GameScene(sf::RenderWindow &w)
     hud.init(baseResolution, resources);
 
     deltaClock.restart();
-    player = &manager.add<SpaceShip>();
+
+    int shipId = GameSession::selectedShipIndex;
+    const ShipData &shipData = ShipRepository::getShip(shipId);
+
+    const sf::Texture &shipTex = resources.getTexture(shipData.texturePath);
+
+    player = &manager.add<SpaceShip>(shipData, shipTex);
+
     previousLives = 3;
 
     player->setWorldBounds(baseResolution);
@@ -39,9 +49,10 @@ GameScene::GameScene(sf::RenderWindow &w)
     player->setWeaponsCallback([this](ProjectileType type, const sf::Vector2f &pos, int dmg, float speed)
                                {
         sf::Vector2f direction(0.f, -1.f);
+        
         if (type == ProjectileType::LASER) 
         {
-           const sf::Texture& tex = resources.getTexture("../assets/img/Federation_Shot_1.png");
+           const sf::Texture& tex = resources.getTexture(player->getData().primaryWeapon.texturePath);
            
            if (player->isDoubleShotActive()) {
                auto& p1 = manager.add<LaserProjectile>(direction, speed, dmg, tex, Faction::Player);
@@ -55,7 +66,8 @@ GameScene::GameScene(sf::RenderWindow &w)
         }
         else if (type == ProjectileType::MISSILE) 
         {
-            const sf::Texture& missileTex = resources.getTexture("../assets/img/Federation_Shot_2.png");
+            const sf::Texture& missileTex = resources.getTexture(player->getData().secondaryWeapon.texturePath);
+            
             auto& m = manager.add<MissileProjectile>(direction, speed, 1000.f, dmg, missileTex, Faction::Player);
             m.setPosition(pos);
         } });
@@ -80,9 +92,8 @@ GameScene::GameScene(sf::RenderWindow &w)
             cols * rows, 
             0.4f
         );
-        
-        explosion->setRotation(sf::degrees(90.f));
-        explosion->setScale({0.4f, 0.4f}); 
+
+        explosion->setScale({0.5f, 0.5f}); 
 
         explosions.push_back(std::move(explosion));
 
@@ -105,11 +116,8 @@ GameScene::GameScene(sf::RenderWindow &w)
             cols * rows, 
             0.2f
         );
-
-        effect->setScale({0.8f, 0.8f});
-        
-        //effect->setRotation(sf::degrees(rotDist(rng)));
-
+        effect->move({0.f, -15.f});
+        effect->setScale({0.6f, 0.6f});
         explosions.push_back(std::move(effect)); });
 
     spawnEnemyWave(15);
@@ -256,18 +264,14 @@ void GameScene::update()
 
         if (player->getLives() < previousLives)
         {
-            const sf::Texture &pExpTex = resources.getTexture("../assets/img/SS_Enterprise_destruction.png");
-
-            int cols = 3;
-            int rows = 4;
-            int frameWidth = pExpTex.getSize().x / cols;
-            int frameHeight = pExpTex.getSize().y / rows;
+            const ShipData &data = player->getData();
+            const sf::Texture &pExpTex = resources.getTexture(data.explosionTexturePath);
 
             auto exp = std::make_unique<Explosion>(
                 lastPlayerPos,
                 pExpTex,
-                sf::Vector2i(frameWidth, frameHeight),
-                cols * rows,
+                data.explosionFrameSize,
+                data.explosionNumFrames,
                 1.0f);
 
             exp->setScale({0.6f, 0.6f});
@@ -287,7 +291,7 @@ void GameScene::update()
                                         { return e->isFinished(); }),
                          explosions.end());
 
-        hud.updateStats(score, player->getLives(), player->getHealth(), 100.f, player->getShield(), player->getMaxShield());
+        hud.updateStats(score, player->getLives(), player->getHealth(), player->getData().maxHealth, player->getShield(), player->getMaxShield());
         hud.updatePowerUps(player->isDoubleShotActive(), player->isRapidFireActive(), player->isInvulnerableState());
 
         if (player->getLives() <= 0)

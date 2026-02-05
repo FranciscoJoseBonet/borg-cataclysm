@@ -3,16 +3,18 @@
 #include "../Entity.h"
 #include "../../weapons/Weapon.h"
 #include "../items/PowerUp.h"
+#include "../../data/ShipData.h"
 #include <optional>
 #include <memory>
 
 class SpaceShip : public Entity
 {
 private:
-    sf::Texture texture;
+    ShipData data;
+
     std::optional<sf::Sprite> sprite;
     int lives = 3;
-    float speed = 300.f;
+
     float invulnerabilityTimer = 0.f;
     bool isInvulnerable = false;
     float rapidFireTimer = 0.f;
@@ -41,7 +43,7 @@ private:
     void respawn();
 
 public:
-    SpaceShip();
+    SpaceShip(const ShipData &shipData, const sf::Texture &texture);
     ~SpaceShip();
 
     void setWorldBounds(sf::Vector2f bounds);
@@ -62,4 +64,6 @@ public:
     float getShield() const { return shield; }
     float getMaxShield() const { return maxShield; }
     bool isRapidFireActive() const { return rapidFireTimer > 0.f; }
+
+    const ShipData &getData() const { return data; }
 };

@@ -4,66 +4,52 @@
 #include "../../weapons/LaserLauncher.h"
 #include "../../weapons/MissileLauncher.h"
 
-SpaceShip::SpaceShip()
-    : Entity(100.f, "Federation", Faction::Player),
+SpaceShip::SpaceShip(const ShipData &shipData, const sf::Texture &texture)
+    : Entity(shipData.maxHealth, shipData.name, Faction::Player),
+      data(shipData),
       worldBounds({1280.f, 720.f}),
       shieldSprite(shieldTexture)
 {
-    maxShield = 100.f;
-    shield = 100.f;
+    maxShield = data.maxHealth;
+    shield = maxShield;
 
-    if (!shieldTexture.loadFromFile("../assets/img/shield.png"))
+    if (!shieldTexture.loadFromFile(data.shieldTexturePath))
     {
-        std::cerr << "Error no se encontro la imagen de shield.png\n";
-
+        std::cerr << "Error no se encontro la imagen del escudo: " << data.shieldTexturePath << "\n";
         sf::Image temp;
         temp.resize({100, 100}, sf::Color::White);
-
         if (!shieldTexture.loadFromImage(temp))
         {
-            std::cerr << "Error, creando textura temporal\n";
         }
     }
 
     shieldSprite.setTexture(shieldTexture, true);
-
     auto sBounds = shieldSprite.getLocalBounds();
     shieldSprite.setOrigin({sBounds.size.x / 2.f, sBounds.size.y / 2.f});
-
     shieldSprite.setColor(sf::Color(0, 255, 255, 80));
 
-    sf::Image img;
-    if (!img.loadFromFile("../assets/img/enterprise-001.PNG"))
-    {
-        std::cerr << "Error no se cargo la nave\n";
-        img.resize({20, 20}, sf::Color::Red);
-    }
+    sprite.emplace(texture);
+    auto shipBounds = sprite->getLocalBounds();
+    sprite->setOrigin({shipBounds.size.x / 2.f, shipBounds.size.y / 2.f});
 
-    if (texture.loadFromImage(img))
-    {
-        sprite.emplace(texture);
-        auto shipBounds = sprite->getLocalBounds();
+    auto shieldBounds = shieldSprite.getLocalBounds();
+    float shipRadius = std::max(shipBounds.size.x, shipBounds.size.y) / 2.f;
+    float shieldRadius = std::max(shieldBounds.size.x, shieldBounds.size.y) / 2.f;
 
-        sprite->setOrigin({shipBounds.size.x / 2.f, shipBounds.size.y / 2.f});
+    if (shieldRadius < 1.f)
+        shieldRadius = 1.f;
+    float scaleFactor = (shipRadius + 15.f) / shieldRadius;
 
-        auto shieldBounds = shieldSprite.getLocalBounds();
-
-        float shipRadius = std::max(shipBounds.size.x, shipBounds.size.y) / 2.f;
-        float shieldRadius = std::max(shieldBounds.size.x, shieldBounds.size.y) / 2.f;
-
-        if (shieldRadius < 1.f)
-            shieldRadius = 1.f;
-
-        float scaleFactor = (shipRadius + 5.f) / shieldRadius;
-
-        shieldSprite.setScale({scaleFactor, scaleFactor});
-        shieldSprite.setPosition({0.f, -5.f});
-    }
+    shieldSprite.setScale({scaleFactor, scaleFactor});
+    shieldSprite.setPosition({0.f, -5.f});
 
     setPosition({worldBounds.x / 2.f, worldBounds.y - 100.f});
 
-    laserLauncher = new LaserLauncher("Phaser Bank", 5.f, 600.f, 10);
-    missileLauncher = new MissileLauncher("Photon Torpedo", 1.f, 100.f, 50);
+    float laserFreq = (data.primaryWeapon.cooldown > 0.f) ? (1.f / data.primaryWeapon.cooldown) : 1.f;
+    laserLauncher = new LaserLauncher(data.primaryWeapon.name, laserFreq, data.primaryWeapon.speed, data.primaryWeapon.damage);
+
+    float missileFreq = (data.secondaryWeapon.cooldown > 0.f) ? (1.f / data.secondaryWeapon.cooldown) : 0.5f;
+    missileLauncher = new MissileLauncher(data.secondaryWeapon.name, missileFreq, data.secondaryWeapon.speed, data.secondaryWeapon.damage);
 }
 
 SpaceShip::~SpaceShip()
@@ -97,13 +83,13 @@ void SpaceShip::update(float deltaTime)
     sf::Vector2f movement(0.f, 0.f);
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
-        movement.x -= speed * deltaTime;
+        movement.x -= data.speed * deltaTime;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
-        movement.x += speed * deltaTime;
+        movement.x += data.speed * deltaTime;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
-        movement.y -= speed * deltaTime;
+        movement.y -= data.speed * deltaTime;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-        movement.y += speed * deltaTime;
+        movement.y += data.speed * deltaTime;
 
     move(movement);
 
@@ -158,7 +144,10 @@ void SpaceShip::update(float deltaTime)
         if (rapidFireTimer <= 0.f)
         {
             if (laserLauncher)
-                laserLauncher->setFireRate(5.f);
+            {
+                float baseFreq = (data.primaryWeapon.cooldown > 0.f) ? (1.f / data.primaryWeapon.cooldown) : 1.f;
+                laserLauncher->setFireRate(baseFreq);
+            }
         }
     }
 
@@ -227,8 +216,8 @@ void SpaceShip::addShield(float amount)
 void SpaceShip::heal(float amount)
 {
     health += amount;
-    if (health > 100.f)
-        health = 100.f;
+    if (health > data.maxHealth)
+        health = data.maxHealth;
 }
 
 void SpaceShip::enableDoubleShot()
@@ -240,7 +229,8 @@ void SpaceShip::enableRapidFire()
 {
     if (laserLauncher)
     {
-        laserLauncher->setFireRate(15.f);
+        float baseFreq = (data.primaryWeapon.cooldown > 0.f) ? (1.f / data.primaryWeapon.cooldown) : 1.f;
+        laserLauncher->setFireRate(baseFreq * 3.f);
         rapidFireTimer = 5.0f;
     }
 }
@@ -297,8 +287,8 @@ void SpaceShip::takeDamage(float amount)
 
 void SpaceShip::respawn()
 {
-    health = 100.f;
-    shield = 30.f;
+    health = data.maxHealth;
+    shield = maxShield * 0.3f;
 
     setPosition({worldBounds.x / 2.f, worldBounds.y - 100.f});
 
@@ -312,6 +302,7 @@ void SpaceShip::respawn()
     rapidFireTimer = 0.f;
     if (laserLauncher)
     {
-        laserLauncher->setFireRate(5.f);
+        float baseFreq = (data.primaryWeapon.cooldown > 0.f) ? (1.f / data.primaryWeapon.cooldown) : 1.f;
+        laserLauncher->setFireRate(baseFreq);
     }
 }

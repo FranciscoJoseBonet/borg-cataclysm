@@ -34,7 +34,6 @@ void MenuScene::initMenuOptions()
     std::vector<std::string> labels = {
         "INICIAR MISION",
         "REGISTROS DE VUELO",
-        "CONFIGURACION DE NAVE",
         "SALIR AL ESCRITORIO"};
 
     float startY = 50.f;
@@ -101,12 +100,10 @@ void MenuScene::handleEvent(const sf::Event &event)
         if (mouseEvent->button == sf::Mouse::Button::Left)
         {
             if (selectedItemIndex == 0)
-                nextScene = SceneType::Game;
+                nextScene = SceneType::Selection;
             else if (selectedItemIndex == 1)
                 nextScene = SceneType::Score;
             else if (selectedItemIndex == 2)
-                nextScene = SceneType::Options;
-            else if (selectedItemIndex == 3)
                 window.close();
         }
     }
