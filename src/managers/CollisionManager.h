@@ -4,12 +4,20 @@
 
 class CollisionManager
 {
-public:
-    using OnEnemyDeathCallback = std::function<void(sf::Vector2f)>;
-
-    void checkCollisions(EntityManager &entities);
-    void setOnEnemyDeath(OnEnemyDeathCallback callback) { onEnemyDeath = callback; }
-
 private:
-    OnEnemyDeathCallback onEnemyDeath;
+    std::function<void(sf::Vector2f)> onEnemyDeath;
+    std::function<void(sf::Vector2f)> onProjectileImpact;
+
+public:
+    void checkCollisions(EntityManager &manager);
+
+    void setOnEnemyDeath(std::function<void(sf::Vector2f)> callback)
+    {
+        onEnemyDeath = callback;
+    }
+
+    void setOnProjectileImpact(std::function<void(sf::Vector2f)> callback)
+    {
+        onProjectileImpact = callback;
+    }
 };

@@ -1,7 +1,9 @@
 #include "CollisionManager.h"
+
 #include "../entities/projectiles/Projectile.h"
 #include "../entities/ships/SpaceShip.h"
 #include "../entities/items/PowerUp.h"
+
 #include <iostream>
 
 void CollisionManager::checkCollisions(EntityManager &manager)
@@ -54,6 +56,14 @@ void CollisionManager::checkCollisions(EntityManager &manager)
                         bool wasAlive = entityB->isAlive();
                         entityB->takeDamage(proj->getDamage());
 
+                        if (proj->getFaction() == Faction::Player && entityB->getFaction() == Faction::Alien)
+                        {
+                            if (onProjectileImpact)
+                            {
+                                onProjectileImpact(proj->getPosition());
+                            }
+                        }
+
                         if (wasAlive && !entityB->isAlive())
                         {
                             if (entityB->getFaction() == Faction::Alien && onEnemyDeath)
@@ -103,7 +113,6 @@ void CollisionManager::checkCollisions(EntityManager &manager)
                         else
                         {
                             float crashDamage = entityB->getHealth() / 2.f;
-                            std::cout << "¡Colisión! Daño recibido: " << crashDamage << "\n";
 
                             player->takeDamage(crashDamage);
 

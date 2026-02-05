@@ -72,7 +72,7 @@ GameScene::GameScene(sf::RenderWindow &w)
         int rows = 3;
         int frameWidth = expTex.getSize().x / cols;
         int frameHeight = expTex.getSize().y / rows;
-        
+
         auto explosion = std::make_unique<Explosion>(
             deathPos, 
             expTex, 
@@ -81,16 +81,38 @@ GameScene::GameScene(sf::RenderWindow &w)
             0.4f
         );
         
-
         explosion->setRotation(sf::degrees(90.f));
         explosion->setScale({0.4f, 0.4f}); 
-        
+
         explosions.push_back(std::move(explosion));
 
         std::uniform_real_distribution<float> chanceDist(0.f, 1.f);
         if (chanceDist(rng) <= 0.4f) spawnPowerUp(deathPos); });
 
-    spawnEnemyWave(30);
+    collisionManager.setOnProjectileImpact([this](sf::Vector2f impactPos)
+                                           {
+        const sf::Texture& impactTex = resources.getTexture("../assets/img/SS_Impact_Laser.png");
+
+        int cols = 6;
+        int rows = 1;
+        int frameWidth = impactTex.getSize().x / cols;
+        int frameHeight = impactTex.getSize().y / rows;
+
+        auto effect = std::make_unique<Explosion>(
+            impactPos, 
+            impactTex, 
+            sf::Vector2i(frameWidth, frameHeight), 
+            cols * rows, 
+            0.2f
+        );
+
+        effect->setScale({0.8f, 0.8f});
+        
+        //effect->setRotation(sf::degrees(rotDist(rng)));
+
+        explosions.push_back(std::move(effect)); });
+
+    spawnEnemyWave(15);
 }
 
 void GameScene::updateView()
