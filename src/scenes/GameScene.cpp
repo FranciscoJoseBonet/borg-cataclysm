@@ -18,10 +18,15 @@ GameScene::GameScene(sf::RenderWindow &w)
       menuButton(font)
 {
     baseResolution = sf::Vector2f((float)w.getSize().x, (float)w.getSize().y);
+
     view.setSize(baseResolution);
     view.setCenter({baseResolution.x / 2.f, baseResolution.y / 2.f});
 
+    hudView.setSize(baseResolution);
+    hudView.setCenter({baseResolution.x / 2.f, baseResolution.y / 2.f});
+
     initPauseMenu();
+    hud.init(baseResolution, resources);
 
     deltaClock.restart();
     player = &manager.add<SpaceShip>();
@@ -60,7 +65,7 @@ GameScene::GameScene(sf::RenderWindow &w)
         std::uniform_real_distribution<float> chanceDist(0.f, 1.f);
         if (chanceDist(rng) <= 0.4f) spawnPowerUp(deathPos); });
 
-    spawnEnemyWave(70);
+    spawnEnemyWave(15);
 }
 
 void GameScene::updateView()
@@ -88,6 +93,7 @@ void GameScene::updateView()
     }
 
     view.setViewport(sf::FloatRect({posX, posY}, {sizeX, sizeY}));
+    hudView.setViewport(sf::FloatRect({posX, posY}, {sizeX, sizeY}));
 }
 
 void GameScene::initPauseMenu()
@@ -198,6 +204,9 @@ void GameScene::update()
         manager.update(dt);
         collisionManager.checkCollisions(manager);
 
+        hud.updateStats(score, player->getLives(), player->getHealth(), 100.f, player->getShield(), player->getMaxShield());
+        hud.updatePowerUps(player->isDoubleShotActive(), player->isRapidFireActive(), player->isInvulnerableState());
+
         if (player->getLives() <= 0)
         {
             gameOver = true;
@@ -209,10 +218,13 @@ void GameScene::update()
 void GameScene::render()
 {
     window.clear(sf::Color::Black);
-    window.setView(view);
 
+    window.setView(view);
     stars.draw(window);
     manager.draw(window);
+
+    window.setView(hudView);
+    hud.draw(window);
 
     if (isPaused)
     {
@@ -299,7 +311,7 @@ void GameScene::spawnPowerUp(sf::Vector2f position)
         texturePath = "../assets/img/PU_Heal.png";
         break;
     case PowerUpType::EXTRA_LIFE:
-        texturePath = "../assets/img/PU_Extra_Life.png";
+        texturePath = "../assets/img/PU_Extra_Life_Rainbow.png";
         break;
     }
 

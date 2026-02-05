@@ -8,6 +8,7 @@
 #include "../managers/EntityManager.h"
 #include "../managers/ResourceManager.h"
 #include "../managers/CollisionManager.h"
+#include "../ui/HUD.h"
 
 class GameScene : public Scene
 {
@@ -19,7 +20,10 @@ private:
     std::mt19937 rng;
 
     sf::View view;
+    sf::View hudView;
     sf::Vector2f baseResolution;
+
+    HUD hud;
 
     sf::Clock deltaClock;
     StarField stars;

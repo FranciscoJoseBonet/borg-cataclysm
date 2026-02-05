@@ -46,12 +46,20 @@ public:
 
     void setWorldBounds(sf::Vector2f bounds);
     void setWeaponsCallback(OnFireCallback callback);
+
     sf::FloatRect getBounds() const override;
+
     void destroy() override;
     void update(float deltaTime) override;
+
     void takeDamage(float amount) override;
     void applyPowerUp(PowerUpType type);
     bool isDoubleShotActive() const { return doubleShotActive; }
     bool isInvulnerableState() const { return isInvulnerable; }
     int getLives() const { return lives; }
+
+    float getHealth() const { return health; }
+    float getShield() const { return shield; }
+    float getMaxShield() const { return maxShield; }
+    bool isRapidFireActive() const { return rapidFireTimer > 0.f; }
 };
