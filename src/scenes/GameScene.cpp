@@ -92,8 +92,9 @@ GameScene::GameScene(sf::RenderWindow &w)
             cols * rows, 
             0.4f
         );
-
-        explosion->setScale({0.5f, 0.5f}); 
+        explosion->move({0.f, -10.f});
+        explosion->setRotation(sf::degrees(90.f));
+        explosion->setScale({0.3f, 0.3f}); 
 
         explosions.push_back(std::move(explosion));
 
