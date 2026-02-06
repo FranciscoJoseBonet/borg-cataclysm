@@ -6,7 +6,7 @@
 MenuScene::MenuScene(sf::RenderWindow &w)
     : window(w),
       stars(w.getSize(), 400),
-      titleText(UITheme::getInstance().getFont())
+      titleText(UITheme::getInstance().getTitleFont())
 {
     baseResolution = sf::Vector2f((float)w.getSize().x, (float)w.getSize().y);
 
@@ -35,7 +35,7 @@ void MenuScene::initMenuOptions()
 
     for (size_t i = 0; i < labels.size(); ++i)
     {
-        sf::Text text(UITheme::getInstance().getFont());
+        sf::Text text(UITheme::getInstance().getBodyFont());
         text.setString(labels[i]);
         text.setCharacterSize(40);
 

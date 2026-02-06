@@ -14,13 +14,15 @@
 #include "../entities/projectiles/MissileProjectile.h"
 #include "../entities/items/PowerUp.h"
 
+#include "../ui/UITheme.h"
+
 GameScene::GameScene(sf::RenderWindow &w)
     : window(w),
       rng(std::random_device{}()),
       stars(w.getSize(), 400),
-      pauseTitle(UITheme::getInstance().getFont()),
-      resumeButton(UITheme::getInstance().getFont()),
-      menuButton(UITheme::getInstance().getFont())
+      pauseTitle(UITheme::getInstance().getTitleFont()),
+      resumeButton(UITheme::getInstance().getBodyFont()),
+      menuButton(UITheme::getInstance().getBodyFont())
 {
     baseResolution = sf::Vector2f((float)w.getSize().x, (float)w.getSize().y);
 

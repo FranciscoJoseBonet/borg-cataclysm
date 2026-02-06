@@ -8,11 +8,11 @@ GameOverScene::GameOverScene(sf::RenderWindow &w, int finalScore)
       score(finalScore),
       saved(false),
       background(backgroundTexture),
-      titleText(UITheme::getInstance().getFont()),
-      scoreText(UITheme::getInstance().getFont()),
-      promptText(UITheme::getInstance().getFont()),
-      nameInputText(UITheme::getInstance().getFont()),
-      infoText(UITheme::getInstance().getFont()),
+      titleText(UITheme::getInstance().getTitleFont()),
+      scoreText(UITheme::getInstance().getBodyFont()),
+      promptText(UITheme::getInstance().getBodyFont()),
+      nameInputText(UITheme::getInstance().getBodyFont()),
+      infoText(UITheme::getInstance().getBodyFont()),
       totalTime(0.f)
 {
     baseResolution = sf::Vector2f((float)w.getSize().x, (float)w.getSize().y);
@@ -37,7 +37,7 @@ GameOverScene::GameOverScene(sf::RenderWindow &w, int finalScore)
     }
 
     panel.setSize({600.f, 500.f});
-    panel.setFillColor(sf::Color(0, 0, 0, 180));
+    panel.setFillColor(sf::Color(0, 0, 0, 220));
     panel.setOutlineColor(sf::Color::White);
     panel.setOutlineThickness(2.f);
 
@@ -46,29 +46,29 @@ GameOverScene::GameOverScene(sf::RenderWindow &w, int finalScore)
     panel.setPosition({baseResolution.x / 2.f, baseResolution.y / 2.f});
 
     titleText.setString("GAME OVER");
-    titleText.setCharacterSize(90);
+    UITheme::applyTitleStyle(titleText);
     titleText.setFillColor(UITheme::LCARS_Red);
-    titleText.setOutlineColor(sf::Color(50, 0, 0));
-    titleText.setOutlineThickness(2.f);
     centerText(titleText, -220.f);
 
     scoreText.setString("PUNTUACION: " + std::to_string(score));
-    scoreText.setCharacterSize(45);
+    scoreText.setCharacterSize(40);
     UITheme::applyHeaderStyle(scoreText);
     centerText(scoreText, -100.f);
 
     promptText.setString("INGRESE SU NOMBRE CADETE:");
-    promptText.setCharacterSize(35);
+    promptText.setCharacterSize(30);
+    UITheme::applyBodyStyle(promptText);
     promptText.setFillColor(UITheme::LCARS_Gold);
     centerText(promptText, 0.f);
 
     nameInputText.setString("_");
-    nameInputText.setCharacterSize(60);
+    nameInputText.setCharacterSize(50);
+    UITheme::applyHighlightStyle(nameInputText);
     nameInputText.setFillColor(UITheme::LCARS_Orange);
     centerText(nameInputText, 60.f);
 
     infoText.setString("[ ENTER PARA GUARDAR - EL KOBAYASHI MARU ERA MAS FACIL... ]");
-    infoText.setCharacterSize(20);
+    infoText.setCharacterSize(18);
     UITheme::applyBodyStyle(infoText);
     centerText(infoText, 200.f);
 }
@@ -157,8 +157,6 @@ void GameOverScene::update()
 
     nameInputText.setString(playerName + "_");
     centerText(nameInputText, 60.f);
-
-    std::uint8_t alpha = static_cast<std::uint8_t>(155 + 100 * std::sin(totalTime * 3.f));
 
     float yOffset = std::sin(totalTime * 2.f) * 10.f;
     centerText(titleText, -220.f + yOffset);

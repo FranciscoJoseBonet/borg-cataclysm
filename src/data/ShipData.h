@@ -15,11 +15,11 @@ struct ShipData
 {
     // Identificación
     std::string name;
-    std::string texturePath; // Sprite de la nave
+    std::string texturePath;
 
     // Estadísticas de la Nave
     float maxHealth;
-    float speed; // Velocidad de movimiento
+    float speed;
 
     // Configuración de Armas
     WeaponData primaryWeapon;

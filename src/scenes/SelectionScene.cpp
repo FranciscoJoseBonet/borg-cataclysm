@@ -6,18 +6,20 @@
 
 SelectionScene::SelectionScene(sf::RenderWindow &w)
     : window(w),
-      titleText(UITheme::getInstance().getFont()),
-      shipNameText(UITheme::getInstance().getFont()),
-      descriptionText(UITheme::getInstance().getFont()),
-      leftArrow(UITheme::getInstance().getFont()),
-      rightArrow(UITheme::getInstance().getFont())
+
+      titleText(UITheme::getInstance().getTitleFont()),
+      shipNameText(UITheme::getInstance().getTitleFont()),
+      leftArrow(UITheme::getInstance().getTitleFont()),
+      rightArrow(UITheme::getInstance().getTitleFont()),
+
+      descriptionText(UITheme::getInstance().getBodyFont())
 {
     baseResolution = sf::Vector2f((float)w.getSize().x, (float)w.getSize().y);
     view.setSize(baseResolution);
     view.setCenter({baseResolution.x / 2.f, baseResolution.y / 2.f});
 
+    // TITULO
     titleText.setString("SELECCIONAR NAVE");
-    titleText.setCharacterSize(60);
     UITheme::applyTitleStyle(titleText);
 
     auto bounds = titleText.getLocalBounds();
@@ -25,26 +27,18 @@ SelectionScene::SelectionScene(sf::RenderWindow &w)
     titleText.setPosition({baseResolution.x / 2.f, baseResolution.y * 0.08f});
 
     shipNameText.setCharacterSize(54);
-    shipNameText.setFillColor(sf::Color::White);
-    shipNameText.setOutlineColor(sf::Color::Black);
-    shipNameText.setOutlineThickness(3.f);
+    UITheme::applyHighlightStyle(shipNameText);
 
-    descriptionText.setCharacterSize(28);
-    descriptionText.setFillColor(sf::Color(255, 255, 255));
-    descriptionText.setOutlineColor(sf::Color::Black);
-    descriptionText.setOutlineThickness(2.5f);
+    descriptionText.setCharacterSize(26);
+    UITheme::applyBodyStyle(descriptionText);
 
     leftArrow.setString("<");
     leftArrow.setCharacterSize(96);
-    leftArrow.setFillColor(UITheme::LCARS_Periwinkle);
-    leftArrow.setOutlineColor(UITheme::LCARS_DarkBorder);
-    leftArrow.setOutlineThickness(3.f);
+    UITheme::applyNavigationStyle(leftArrow);
 
     rightArrow.setString(">");
     rightArrow.setCharacterSize(96);
-    rightArrow.setFillColor(UITheme::LCARS_Periwinkle);
-    rightArrow.setOutlineColor(UITheme::LCARS_DarkBorder);
-    rightArrow.setOutlineThickness(3.f);
+    UITheme::applyNavigationStyle(rightArrow);
 
     currentIndex = 0;
     updateUI();
@@ -55,26 +49,24 @@ void SelectionScene::updateUI()
     const auto &ships = ShipRepository::getAllShips();
     const auto &data = ships[currentIndex];
 
+    // Fondo
     const sf::Texture &bgTex = resources.getTexture(data.planetBackgroundPath);
     backgroundSprite.emplace(bgTex);
-
     float scale = (baseResolution.y * 0.7f) / bgTex.getSize().y;
     backgroundSprite->setScale({scale, scale});
-
     auto bgBounds = backgroundSprite->getLocalBounds();
     backgroundSprite->setOrigin({bgBounds.size.x / 2.f, bgBounds.size.y / 2.f});
-
     backgroundSprite->setPosition({baseResolution.x / 2.f, baseResolution.y * 0.45f});
 
+    // Nave
     const sf::Texture &shipTex = resources.getTexture(data.texturePath);
     shipPreviewSprite.emplace(shipTex);
-
     auto shipBounds = shipPreviewSprite->getLocalBounds();
     shipPreviewSprite->setOrigin({shipBounds.size.x / 2.f, shipBounds.size.y / 2.f});
-
     shipPreviewSprite->setPosition({baseResolution.x / 2.f, baseResolution.y * 0.45f});
     shipPreviewSprite->setScale({2.5f, 2.5f});
 
+    // Textos
     shipNameText.setString(data.name);
     auto nameBounds = shipNameText.getLocalBounds();
     shipNameText.setOrigin({nameBounds.size.x / 2.f, nameBounds.size.y / 2.f});
@@ -85,6 +77,7 @@ void SelectionScene::updateUI()
     descriptionText.setOrigin({descBounds.size.x / 2.f, descBounds.size.y / 2.f});
     descriptionText.setPosition({baseResolution.x / 2.f, baseResolution.y * 0.90f});
 
+    // Flechas
     leftArrow.setPosition({baseResolution.x * 0.1f, baseResolution.y * 0.45f - 40.f});
     rightArrow.setPosition({baseResolution.x * 0.9f - 40.f, baseResolution.y * 0.45f - 40.f});
 }
@@ -123,10 +116,10 @@ void SelectionScene::handleEvent(const sf::Event &event)
         updateView();
     }
 
+    int totalShips = static_cast<int>(ShipRepository::getAllShips().size());
+
     if (const auto *keyEvent = event.getIf<sf::Event::KeyPressed>())
     {
-        int totalShips = static_cast<int>(ShipRepository::getAllShips().size());
-
         if (keyEvent->code == sf::Keyboard::Key::Left || keyEvent->code == sf::Keyboard::Key::A)
         {
             currentIndex = (currentIndex - 1 + totalShips) % totalShips;
@@ -153,8 +146,6 @@ void SelectionScene::handleEvent(const sf::Event &event)
         if (mouseEvent->button == sf::Mouse::Button::Left)
         {
             sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window), view);
-            int totalShips = static_cast<int>(ShipRepository::getAllShips().size());
-
             if (leftArrow.getGlobalBounds().contains(mousePos))
             {
                 currentIndex = (currentIndex - 1 + totalShips) % totalShips;
@@ -185,23 +176,23 @@ void SelectionScene::update()
     {
         backgroundSprite->rotate(sf::degrees(0.01f));
     }
+
+    sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window), view);
+    UITheme::applyNavigationStyle(leftArrow, leftArrow.getGlobalBounds().contains(mousePos));
+    UITheme::applyNavigationStyle(rightArrow, rightArrow.getGlobalBounds().contains(mousePos));
 }
 
 void SelectionScene::drawStatBar(sf::RenderTarget &target, const std::string &label, float value, float maxValue, float yPos, sf::Color color)
 {
     float barWidth = baseResolution.x * 0.3f;
     float barHeight = 12.f;
-
     float centerX = baseResolution.x / 2.f;
     float startX = centerX - (barWidth / 2.f) + 40.f;
 
-    sf::Text labelText(UITheme::getInstance().getFont());
+    sf::Text labelText(UITheme::getInstance().getBodyFont());
     labelText.setString(label);
-    labelText.setCharacterSize(24);
-
-    labelText.setFillColor(sf::Color::White);
-    labelText.setOutlineColor(sf::Color::Black);
-    labelText.setOutlineThickness(2.0f);
+    labelText.setCharacterSize(22);
+    UITheme::applyLabelStyle(labelText);
 
     auto labelBounds = labelText.getLocalBounds();
     labelText.setOrigin({labelBounds.size.x, labelBounds.size.y / 2.f});
@@ -216,6 +207,7 @@ void SelectionScene::drawStatBar(sf::RenderTarget &target, const std::string &la
     bgBar.setOutlineThickness(1.f);
     target.draw(bgBar);
 
+    // Barra Relleno
     float percentage = std::min(value / maxValue, 1.0f);
     sf::RectangleShape fillBar({barWidth * percentage, barHeight});
     fillBar.setPosition({startX, yPos});
@@ -230,7 +222,6 @@ void SelectionScene::render()
 
     if (backgroundSprite)
         window.draw(*backgroundSprite);
-
     if (shipPreviewSprite)
         window.draw(*shipPreviewSprite);
 
@@ -254,12 +245,10 @@ void SelectionScene::render()
     float fireRate = (data.primaryWeapon.cooldown > 0) ? (1.f / data.primaryWeapon.cooldown) : 0.f;
     drawStatBar(window, "CADENCIA", fireRate, 8.f, startStatsY + gap * 3, sf::Color::Yellow);
 
-    sf::Text enterText(UITheme::getInstance().getFont());
+    sf::Text enterText(UITheme::getInstance().getBodyFont());
     enterText.setString("[ESC] MENU PRINCIPAL      [ENTER] INICIAR MISION");
-    enterText.setCharacterSize(30);
-    enterText.setFillColor(sf::Color(255, 255, 255));
-    enterText.setOutlineColor(sf::Color::Black);
-    enterText.setOutlineThickness(2.5f);
+    enterText.setCharacterSize(24);
+    UITheme::applyLabelStyle(enterText);
 
     auto b = enterText.getLocalBounds();
     enterText.setOrigin({b.size.x / 2.f, b.size.y / 2.f});

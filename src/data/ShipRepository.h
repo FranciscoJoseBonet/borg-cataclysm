@@ -33,13 +33,11 @@ public:
             {
                 "Vulcan Science Vessel",
                 "../assets/img/Vulcan_Vessel.png",
-                140.f, // Max Health
-                120.f, // Speed
+                140.f,
+                120.f,
 
-                // Arma Primaria
                 {"Plasma Array", 0.25f, 650.f, 15, "../assets/img/Vulcan_Shot_1.png"},
 
-                // Arma Secundaria
                 {"Gravimetric Torpedo", 1.5f, 80.f, 70, "../assets/img/Vulcan_Shot_2.png"},
 
                 "../assets/img/Shield.png",
