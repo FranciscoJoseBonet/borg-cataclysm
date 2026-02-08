@@ -89,7 +89,15 @@ GameScene::GameScene(sf::RenderWindow &w)
     player->setPosition({baseResolution.x / 2.f, (baseResolution.y / 2.f) + (baseResolution.y / 2.7f)});
 
     levelManager = std::make_unique<LevelManager>(manager, resources, baseResolution);
+    if (levelManager)
+    {
+        levelManager->setPlayer(player);
 
+        levelManager->setOnLevelChanged([this](int newLevel)
+                                        { hud.showLevelMessage(newLevel); });
+
+        hud.showLevelMessage(1);
+    }
     collisionManager.setOnEnemyDeath([this](sf::Vector2f deathPos)
                                      {
         score += 100;
@@ -284,6 +292,7 @@ void GameScene::update()
 
     if (!gameOver)
     {
+        hud.update(dt);
         manager.update(dt);
 
         if (levelManager)

@@ -5,9 +5,9 @@ CurvedProjectile::CurvedProjectile(sf::Vector2f startPos, sf::Vector2f direction
     : Projectile(direction, speed, damage, faction, ProjectileType::LASER)
 {
     this->curveFrequency = curveFrequency;
-    this->curveWidth = 2.0f;
+    this->curveWidth = 3.0f;
     this->timeAlive = 0.f;
-    this->maxLifetime = 5.0f;
+    this->maxLifetime = 9.0f;
 
     setPosition(startPos);
 

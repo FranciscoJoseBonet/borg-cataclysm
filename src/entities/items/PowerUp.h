@@ -1,33 +1,32 @@
 #pragma once
 #include "../Entity.h"
+#include <SFML/Graphics.hpp>
+#include <optional>
 
 enum class PowerUpType
 {
     SHIELD,
-    DOUBLE_SHOT,
     RAPID_FIRE,
+    DOUBLE_SHOT,
     INVINCIBILITY,
-    EXTRA_LIFE,
-    HEAL
+    HEAL,
+    EXTRA_LIFE
 };
 
 class PowerUp : public Entity
 {
+private:
+    PowerUpType powerUpType;
+    float speed;
+    std::optional<sf::Sprite> sprite;
+
+    void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
+
 public:
     PowerUp(sf::Vector2f position, PowerUpType type, const sf::Texture &texture);
 
     void update(float deltaTime) override;
     sf::FloatRect getBounds() const override;
 
-    PowerUpType getPowerType() const { return powerType; }
-
-    void destroy() override { Entity::destroy(); }
-
-protected:
-    void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
-
-private:
-    PowerUpType powerType;
-    std::optional<sf::Sprite> sprite;
-    float speed;
+    PowerUpType getPowerUpType() const { return powerUpType; }
 };

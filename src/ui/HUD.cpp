@@ -1,12 +1,16 @@
 #include "HUD.h"
+#include "UITheme.h"
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <cmath>
 
 using namespace std;
 
 HUD::HUD()
-    : scoreText(font)
+    : scoreText(UITheme::getInstance().getTitleFont()),
+      levelText(UITheme::getInstance().getTitleFont()),
+      levelTextTimer(0.f)
 {
 }
 
@@ -14,28 +18,22 @@ void HUD::init(const sf::Vector2f &res, ResourceManager &resources)
 {
     baseResolution = res;
 
-    if (!font.openFromFile("../assets/fonts/Star_Trek_Enterprise_Future.ttf"))
-    {
-        if (!font.openFromFile("../assets/fonts/pixel_font.ttf"))
-        {
-            std::cerr << "No se pudo cargar ninguna fuente en el HUD\n";
-        }
-    }
-
+    UITheme::applyTitleStyle(scoreText);
     scoreText.setCharacterSize(55);
-    scoreText.setFillColor(sf::Color::White);
     scoreText.setPosition({baseResolution.x - 20.f, 30.f});
+
+    UITheme::applyTitleStyle(levelText);
+    levelText.setCharacterSize(100);
+    levelText.setFillColor(sf::Color(255, 255, 255, 0));
 
     const sf::Texture &healTex = resources.getTexture("../assets/img/PowerUps/PU_Heal.png");
     healthIcon.emplace(healTex);
-
     float iconScaleH = 25.f / healTex.getSize().y;
     healthIcon->setScale({iconScaleH, iconScaleH});
     healthIcon->setPosition({20.f, 20.f});
 
     const sf::Texture &shieldTex = resources.getTexture("../assets/img/PowerUps/PU_Extra_Shield.png");
     shieldIcon.emplace(shieldTex);
-
     float iconScaleS = 25.f / shieldTex.getSize().y;
     shieldIcon->setScale({iconScaleS, iconScaleS});
     shieldIcon->setPosition({20.f, 55.f});
@@ -43,48 +41,81 @@ void HUD::init(const sf::Vector2f &res, ResourceManager &resources)
     float barX = 60.f;
 
     healthBarBack.setSize({widthBar, heightBar});
-    healthBarBack.setFillColor(sf::Color(100, 0, 0));
+    healthBarBack.setFillColor(UITheme::LCARS_DarkBorder);
     healthBarBack.setPosition({barX, 22.f});
-    healthBarBack.setOutlineColor(sf::Color::White);
+    healthBarBack.setOutlineColor(UITheme::LCARS_Red);
     healthBarBack.setOutlineThickness(1.f);
 
     healthBar.setSize({widthBar, heightBar});
-    healthBar.setFillColor(sf::Color(200, 0, 0));
+    healthBar.setFillColor(UITheme::LCARS_Red);
     healthBar.setPosition({barX, 22.f});
 
     shieldBarBack.setSize({widthBar, heightBar});
-    shieldBarBack.setFillColor(sf::Color(0, 0, 50));
+    shieldBarBack.setFillColor(UITheme::LCARS_DarkBorder);
     shieldBarBack.setPosition({barX, 57.f});
-    shieldBarBack.setOutlineColor(sf::Color::Cyan);
+    shieldBarBack.setOutlineColor(UITheme::LCARS_Periwinkle);
     shieldBarBack.setOutlineThickness(1.f);
 
     shieldBar.setSize({widthBar, heightBar});
-    shieldBar.setFillColor(sf::Color::Cyan);
+    shieldBar.setFillColor(UITheme::LCARS_Periwinkle);
     shieldBar.setPosition({barX, 57.f});
 
     const sf::Texture &shipTex = resources.getTexture("../assets/img/Ships/enterprise-001.PNG");
     shipLifeIcon.emplace(shipTex);
-
     float shipScale = 40.f / shipTex.getSize().x;
     shipLifeIcon->setScale({shipScale, shipScale});
 
     auto setupIcon = [&](string name, string path)
     {
         const sf::Texture &tex = resources.getTexture(path);
-
         sf::Sprite s(tex);
-
         float targetSize = 55.f;
         float scaleX = targetSize / tex.getSize().x;
         float scaleY = targetSize / tex.getSize().y;
         s.setScale({scaleX, scaleY});
-
         powerUpIcons.insert_or_assign(name, s);
     };
 
     setupIcon("DOUBLE", "../assets/img/PowerUps/PU_Double_Shot.png");
     setupIcon("RAPID", "../assets/img/PowerUps/PU_Rapid_Fire.png");
     setupIcon("INVUL", "../assets/img/PowerUps/PU_Invencibility.png");
+}
+
+void HUD::showLevelMessage(int level)
+{
+    levelText.setString("LEVEL " + std::to_string(level));
+
+    auto bounds = levelText.getLocalBounds();
+    levelText.setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
+    levelText.setPosition({baseResolution.x / 2.f, baseResolution.y / 3.f});
+
+    levelTextTimer = 2.0f;
+}
+
+void HUD::update(float dt)
+{
+    if (levelTextTimer > 0.f)
+    {
+        levelTextTimer -= dt;
+
+        sf::Color c = UITheme::LCARS_Gold;
+
+        if (levelTextTimer < 1.0f)
+        {
+            float alpha = (levelTextTimer / 1.0f) * 255.f;
+            c.a = static_cast<std::uint8_t>(alpha);
+        }
+        else
+        {
+            c.a = 255;
+        }
+
+        levelText.setFillColor(c);
+
+        sf::Color outline = sf::Color(60, 40, 0);
+        outline.a = c.a;
+        levelText.setOutlineColor(outline);
+    }
 }
 
 void HUD::updateStats(int score, int lives, float hp, float maxHp, float shield, float maxShield)
@@ -139,6 +170,11 @@ void HUD::updatePowerUps(bool doubleShot, bool rapidFire, bool invulnerable)
 void HUD::draw(sf::RenderWindow &window)
 {
     window.draw(scoreText);
+
+    if (levelTextTimer > 0.f)
+    {
+        window.draw(levelText);
+    }
 
     if (healthIcon.has_value())
         window.draw(healthIcon.value());

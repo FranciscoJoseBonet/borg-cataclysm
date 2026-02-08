@@ -8,8 +8,10 @@
 class HUD
 {
 private:
-    sf::Font font;
     sf::Text scoreText;
+
+    sf::Text levelText;
+    float levelTextTimer;
 
     sf::RectangleShape healthBar;
     sf::RectangleShape healthBarBack;
@@ -32,6 +34,9 @@ public:
     HUD();
 
     void init(const sf::Vector2f &resolution, ResourceManager &resources);
+
+    void update(float dt);
+    void showLevelMessage(int level);
 
     void updateStats(int score, int lives, float hp, float maxHp, float shield, float maxShield);
     void updatePowerUps(bool doubleShot, bool rapidFire, bool invulnerable);
