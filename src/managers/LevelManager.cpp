@@ -34,7 +34,6 @@ void LevelManager::update(float dt)
     if (!anyEnemyAlive && enemiesToSpawn <= 0)
     {
         currentLevel++;
-        std::cout << "Iniciando Nivel: " << currentLevel << std::endl;
 
         if (onLevelChanged)
         {
