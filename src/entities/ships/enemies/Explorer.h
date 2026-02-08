@@ -1,12 +1,15 @@
 #pragma once
 #include "Enemy.h"
+#include <SFML/Graphics.hpp>
 
 class Explorer : public Enemy
 {
 private:
     float timeAlive = 0.f;
-    float frequency = 2.0f;
-    float amplitude = 120.f;
+
+    float frequency;
+    float amplitude;
+    float startPhase;
     float initialX;
 
 public:

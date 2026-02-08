@@ -60,11 +60,10 @@ void LevelManager::update(float dt)
 void LevelManager::spawnScoutWave(int count)
 {
     std::uniform_real_distribution<float> distX(50.f, worldBounds.x - 50.f);
-    std::uniform_real_distribution<float> distY(-1200.f, -100.f);
+    std::uniform_real_distribution<float> distY(-1500.f, -100.f);
 
-    std::uniform_real_distribution<float> distSpeed(80.f, 180.f);
-    std::uniform_real_distribution<float> distFireRate(0.5f, 2.5f);
-    std::uniform_real_distribution<float> distProjSpeed(300.f, 500.f);
+    // Generador de "Personalidad" (0: Standard, 1: Rusher, 2: Gunner)
+    std::uniform_int_distribution<int> distArchetype(0, 100);
 
     const sf::Texture &scoutTex = resources.getTexture("../assets/img/ships/Klingon_Ship_1.png");
 
@@ -83,32 +82,72 @@ void LevelManager::spawnScoutWave(int count)
         float y = distY(rng);
 
         auto &enemy = entityManager.add<Scout>(scoutTex, sf::Vector2f(x, y));
-
         enemy.setFireCallback(enemyFireAction);
 
-        enemy.setSpeed(distSpeed(rng));
-        enemy.setFireRate(distFireRate(rng));
-        enemy.setProjectileSpeed(distProjSpeed(rng));
+        // --- LÓGICA DE ARQUETIPOS ---
+        int roll = distArchetype(rng);
+
+        float finalSpeed = 0.f;
+        float finalFireRate = 0.f;
+        float finalProjSpeed = 400.f;
+
+        if (roll < 50) // 50% STANDARD
+        {
+            std::uniform_real_distribution<float> s(120.f, 160.f);
+            std::uniform_real_distribution<float> f(1.8f, 2.5f);
+            finalSpeed = s(rng);
+            finalFireRate = f(rng);
+        }
+        else if (roll < 80) // 30% RUSHER
+        {
+            std::uniform_real_distribution<float> s(180.f, 240.f);
+            std::uniform_real_distribution<float> f(2.5f, 3.5f);
+            finalSpeed = s(rng);
+            finalFireRate = f(rng);
+            finalProjSpeed = 450.f;
+        }
+        else // 20% GUNNER
+        {
+            std::uniform_real_distribution<float> s(90.f, 110.f);
+            std::uniform_real_distribution<float> f(1.0f, 1.5f);
+            finalSpeed = s(rng);
+            finalFireRate = f(rng);
+            finalProjSpeed = 350.f;
+        }
+
+        enemy.setSpeed(finalSpeed);
+        enemy.setFireRate(finalFireRate);
+        enemy.setProjectileSpeed(finalProjSpeed);
     }
     waveInProgress = true;
 }
 
 void LevelManager::spawnExplorerWave(int count)
 {
-
-    std::uniform_real_distribution<float> distX(150.f, worldBounds.x - 150.f);
+    std::uniform_real_distribution<float> distX(100.f, worldBounds.x - 100.f);
     std::uniform_real_distribution<float> distY(-1500.f, -200.f);
+
+    // Velocidad y FireRate variable para la nave
+    std::uniform_real_distribution<float> distSpeed(80.f, 120.f);
+    std::uniform_real_distribution<float> distFireRate(1.5f, 3.0f);
 
     const sf::Texture &romulanTex = resources.getTexture("../assets/img/ships/Romulan_Explorer.png");
 
     auto romulanFireAction = [this](ProjectileType type, const sf::Vector2f &pos, int dmg, float speed)
     {
         const sf::Texture &tex = resources.getTexture("../assets/img/Shots/Missile/Romulan_Shot_2.png");
-
         sf::Vector2f dir(0.f, 1.f);
 
-        entityManager.add<CurvedProjectile>(pos, dir, speed, dmg, 5.0f, tex, Faction::Alien);
-        entityManager.add<CurvedProjectile>(pos, dir, speed, dmg, -5.0f, tex, Faction::Alien);
+        // Curvas variables en cada disparo
+        std::uniform_real_distribution<float> distCurveFreq(3.0f, 7.0f);
+        std::uniform_real_distribution<float> distProjSpeedVar(0.9f, 1.1f);
+
+        float freq1 = distCurveFreq(rng);
+        float freq2 = distCurveFreq(rng);
+        float speedVar = distProjSpeedVar(rng);
+
+        entityManager.add<CurvedProjectile>(pos, dir, speed * speedVar, dmg, freq1, tex, Faction::Alien);
+        entityManager.add<CurvedProjectile>(pos, dir, speed * speedVar, dmg, -freq2, tex, Faction::Alien);
     };
 
     for (int i = 0; i < count; ++i)
@@ -119,6 +158,9 @@ void LevelManager::spawnExplorerWave(int count)
         auto &enemy = entityManager.add<Explorer>(romulanTex, sf::Vector2f(x, y));
 
         enemy.setFireCallback(romulanFireAction);
+
+        enemy.setSpeed(distSpeed(rng));
+        enemy.setFireRate(distFireRate(rng));
         enemy.setProjectileSpeed(250.f);
     }
     waveInProgress = true;
@@ -133,6 +175,7 @@ void LevelManager::notifyEnemyDeath(sf::Vector2f pos)
 void LevelManager::trySpawnPowerUp(sf::Vector2f position)
 {
     std::uniform_real_distribution<float> chance(0.f, 1.f);
+    // 40% de probabilidad
     if (chance(rng) > 0.4f)
         return;
 

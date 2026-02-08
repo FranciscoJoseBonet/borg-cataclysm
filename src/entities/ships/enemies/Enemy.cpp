@@ -37,9 +37,9 @@ void Enemy::update(float deltaTime)
 
     movePattern(deltaTime);
 
-    if (getPosition().y > 1100.f)
+    if (getPosition().y > 1200.f)
     {
-        setPosition({getPosition().x, -100.f});
+        setPosition({getPosition().x, -200.f});
     }
 }
 
