@@ -80,7 +80,7 @@ GameScene::GameScene(sf::RenderWindow &w)
                                      {
         score += 100;
 
-        const sf::Texture& expTex = resources.getTexture("../assets/img/SS_Klingon_Destruction.png");
+        const sf::Texture& expTex = resources.getTexture("../assets/img/Ships/SS_Klingon_Destruction.png");
         
         int cols = 2;
         int rows = 3;
@@ -96,7 +96,7 @@ GameScene::GameScene(sf::RenderWindow &w)
         );
         explosion->move({0.f, -10.f});
         explosion->setRotation(sf::degrees(90.f));
-        explosion->setScale({0.3f, 0.3f}); 
+        explosion->setScale({0.4f, 0.4f}); 
 
         explosions.push_back(std::move(explosion));
 
@@ -105,7 +105,7 @@ GameScene::GameScene(sf::RenderWindow &w)
 
     collisionManager.setOnProjectileImpact([this](sf::Vector2f impactPos)
                                            {
-        const sf::Texture& impactTex = resources.getTexture("../assets/img/SS_Impact_Laser.png");
+        const sf::Texture& impactTex = resources.getTexture("../assets/img/Shots/Laser/SS_Impact_Laser.png");
 
         int cols = 6;
         int rows = 1;
@@ -331,12 +331,12 @@ void GameScene::spawnEnemyWave(int count)
     std::uniform_real_distribution<float> distShipSpeed(80.f, 150.f);
     std::uniform_real_distribution<float> distProjSpeed(300.f, 600.f);
 
-    const sf::Texture &scoutTex = resources.getTexture("../assets/img/Klingon_Ship_1.png");
+    const sf::Texture &scoutTex = resources.getTexture("../assets/img/ships/Klingon_Ship_1.png");
 
     auto enemyFireAction = [this](ProjectileType type, const sf::Vector2f &pos, int dmg, float speed)
     {
         sf::Vector2f direction(0.f, 1.f);
-        const sf::Texture &tex = resources.getTexture("../assets/img/Klingon_Shot_1.png");
+        const sf::Texture &tex = resources.getTexture("../assets/img/Shots/Laser/Klingon_Shot_1.png");
 
         auto &p = manager.add<LaserProjectile>(direction, speed, dmg, tex, Faction::Alien);
         p.setPosition(pos);
@@ -382,22 +382,22 @@ void GameScene::spawnPowerUp(sf::Vector2f position)
     switch (type)
     {
     case PowerUpType::SHIELD:
-        texturePath = "../assets/img/PU_Extra_Shield.png";
+        texturePath = "../assets/img/PowerUps/PU_Extra_Shield.png";
         break;
     case PowerUpType::DOUBLE_SHOT:
-        texturePath = "../assets/img/PU_Double_Shot.png";
+        texturePath = "../assets/img/PowerUps/PU_Double_Shot.png";
         break;
     case PowerUpType::RAPID_FIRE:
-        texturePath = "../assets/img/PU_Rapid_Fire.png";
+        texturePath = "../assets/img/PowerUps/PU_Rapid_Fire.png";
         break;
     case PowerUpType::INVINCIBILITY:
-        texturePath = "../assets/img/PU_Invencibility.png";
+        texturePath = "../assets/img/PowerUps/PU_Invencibility.png";
         break;
     case PowerUpType::HEAL:
-        texturePath = "../assets/img/PU_Heal.png";
+        texturePath = "../assets/img/PowerUps/PU_Heal.png";
         break;
     case PowerUpType::EXTRA_LIFE:
-        texturePath = "../assets/img/PU_Extra_Life_Rainbow.png";
+        texturePath = "../assets/img/PowerUps/PU_Extra_Life_Rainbow.png";
         break;
     }
 

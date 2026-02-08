@@ -26,14 +26,14 @@ void HUD::init(const sf::Vector2f &res, ResourceManager &resources)
     scoreText.setFillColor(sf::Color::White);
     scoreText.setPosition({baseResolution.x - 20.f, 30.f});
 
-    const sf::Texture &healTex = resources.getTexture("../assets/img/PU_Heal.png");
+    const sf::Texture &healTex = resources.getTexture("../assets/img/PowerUps/PU_Heal.png");
     healthIcon.emplace(healTex);
 
     float iconScaleH = 25.f / healTex.getSize().y;
     healthIcon->setScale({iconScaleH, iconScaleH});
     healthIcon->setPosition({20.f, 20.f});
 
-    const sf::Texture &shieldTex = resources.getTexture("../assets/img/PU_Extra_Shield.png");
+    const sf::Texture &shieldTex = resources.getTexture("../assets/img/PowerUps/PU_Extra_Shield.png");
     shieldIcon.emplace(shieldTex);
 
     float iconScaleS = 25.f / shieldTex.getSize().y;
@@ -62,7 +62,7 @@ void HUD::init(const sf::Vector2f &res, ResourceManager &resources)
     shieldBar.setFillColor(sf::Color::Cyan);
     shieldBar.setPosition({barX, 57.f});
 
-    const sf::Texture &shipTex = resources.getTexture("../assets/img/enterprise-001.PNG");
+    const sf::Texture &shipTex = resources.getTexture("../assets/img/Ships/enterprise-001.PNG");
     shipLifeIcon.emplace(shipTex);
 
     float shipScale = 40.f / shipTex.getSize().x;
@@ -82,9 +82,9 @@ void HUD::init(const sf::Vector2f &res, ResourceManager &resources)
         powerUpIcons.insert_or_assign(name, s);
     };
 
-    setupIcon("DOUBLE", "../assets/img/PU_Double_Shot.png");
-    setupIcon("RAPID", "../assets/img/PU_Rapid_Fire.png");
-    setupIcon("INVUL", "../assets/img/PU_Invencibility.png");
+    setupIcon("DOUBLE", "../assets/img/PowerUps/PU_Double_Shot.png");
+    setupIcon("RAPID", "../assets/img/PowerUps/PU_Rapid_Fire.png");
+    setupIcon("INVUL", "../assets/img/PowerUps/PU_Invencibility.png");
 }
 
 void HUD::updateStats(int score, int lives, float hp, float maxHp, float shield, float maxShield)
