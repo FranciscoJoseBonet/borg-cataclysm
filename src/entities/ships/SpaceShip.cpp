@@ -273,6 +273,11 @@ void SpaceShip::takeDamage(float amount)
 
     if (health <= 0.f)
     {
+        if (onLifeLost)
+        {
+            onLifeLost(getPosition());
+        }
+
         lives--;
         if (lives > 0)
         {
@@ -305,4 +310,9 @@ void SpaceShip::respawn()
         float baseFreq = (data.primaryWeapon.cooldown > 0.f) ? (1.f / data.primaryWeapon.cooldown) : 1.f;
         laserLauncher->setFireRate(baseFreq);
     }
+}
+
+void SpaceShip::setOnLifeLostCallback(OnLifeLostCallback callback)
+{
+    onLifeLost = callback;
 }

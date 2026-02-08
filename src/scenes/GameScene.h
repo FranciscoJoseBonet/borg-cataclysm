@@ -12,6 +12,7 @@
 #include "../managers/EntityManager.h"
 #include "../managers/ResourceManager.h"
 #include "../managers/CollisionManager.h"
+#include "../managers/LevelManager.h"
 
 #include "../effects/Explosion.h"
 
@@ -24,6 +25,7 @@ private:
     ResourceManager resources;
     EntityManager manager;
     CollisionManager collisionManager;
+    std::unique_ptr<LevelManager> levelManager;
     std::mt19937 rng;
 
     sf::View view;

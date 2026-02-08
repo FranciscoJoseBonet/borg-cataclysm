@@ -8,13 +8,11 @@
 #include "../core/GameSession.h"
 
 #include "../entities/ships/SpaceShip.h"
-#include "../entities/ships/enemies/Scout.h"
-
 #include "../entities/projectiles/LaserProjectile.h"
 #include "../entities/projectiles/MissileProjectile.h"
-#include "../entities/items/PowerUp.h"
 
 #include "../ui/UITheme.h"
+#include "../managers/LevelManager.h"
 
 GameScene::GameScene(sf::RenderWindow &w)
     : window(w),
@@ -44,8 +42,6 @@ GameScene::GameScene(sf::RenderWindow &w)
 
     player = &manager.add<SpaceShip>(shipData, shipTex);
 
-    previousLives = 3;
-
     player->setWorldBounds(baseResolution);
 
     player->setWeaponsCallback([this](ProjectileType type, const sf::Vector2f &pos, int dmg, float speed)
@@ -74,7 +70,25 @@ GameScene::GameScene(sf::RenderWindow &w)
             m.setPosition(pos);
         } });
 
+    player->setOnLifeLostCallback([this](sf::Vector2f pos)
+                                  {
+        const ShipData &data = player->getData();
+        const sf::Texture &pExpTex = resources.getTexture(data.explosionTexturePath);
+
+        auto exp = std::make_unique<Explosion>(
+            pos,
+            pExpTex,
+            data.explosionFrameSize,
+            data.explosionNumFrames,
+            1.0f
+        );
+
+        exp->setScale({0.6f, 0.6f});
+        explosions.push_back(std::move(exp)); });
+
     player->setPosition({baseResolution.x / 2.f, (baseResolution.y / 2.f) + (baseResolution.y / 2.7f)});
+
+    levelManager = std::make_unique<LevelManager>(manager, resources, baseResolution);
 
     collisionManager.setOnEnemyDeath([this](sf::Vector2f deathPos)
                                      {
@@ -100,8 +114,8 @@ GameScene::GameScene(sf::RenderWindow &w)
 
         explosions.push_back(std::move(explosion));
 
-        std::uniform_real_distribution<float> chanceDist(0.f, 1.f);
-        if (chanceDist(rng) <= 0.4f) spawnPowerUp(deathPos); });
+        if (levelManager)
+            levelManager->notifyEnemyDeath(deathPos); });
 
     collisionManager.setOnProjectileImpact([this](sf::Vector2f impactPos, ProjectileType type)
                                            {
@@ -116,7 +130,7 @@ GameScene::GameScene(sf::RenderWindow &w)
             texturePath = "../assets/img/Shots/Missile/SS_Impact_Missile.png"; 
             cols = 8; 
             rows = 1;
-            scale = 1.2f;
+            scale = 1.2f; 
             duration = 0.3f; 
         }
         else 
@@ -148,8 +162,6 @@ GameScene::GameScene(sf::RenderWindow &w)
         effect->setRotation(sf::degrees(rotDist(rng)));
 
         explosions.push_back(std::move(effect)); });
-
-    spawnEnemyWave(15);
 }
 
 void GameScene::updateView()
@@ -274,28 +286,10 @@ void GameScene::update()
     {
         manager.update(dt);
 
-        sf::Vector2f lastPlayerPos = player->getPosition();
+        if (levelManager)
+            levelManager->update(dt);
 
         collisionManager.checkCollisions(manager);
-
-        if (player->getLives() < previousLives)
-        {
-            const ShipData &data = player->getData();
-            const sf::Texture &pExpTex = resources.getTexture(data.explosionTexturePath);
-
-            auto exp = std::make_unique<Explosion>(
-                lastPlayerPos,
-                pExpTex,
-                data.explosionFrameSize,
-                data.explosionNumFrames,
-                1.0f);
-
-            exp->setScale({0.6f, 0.6f});
-
-            explosions.push_back(std::move(exp));
-
-            previousLives = player->getLives();
-        }
 
         for (auto &exp : explosions)
         {
@@ -343,86 +337,4 @@ void GameScene::render()
     }
 
     window.display();
-}
-
-void GameScene::spawnEnemyWave(int count)
-{
-    std::uniform_real_distribution<float> distX(50.f, baseResolution.x - 50.f);
-    std::uniform_real_distribution<float> distY(-2000.f, -100.f);
-    std::uniform_real_distribution<float> distFireRate(0.5f, 1.5f);
-    std::uniform_real_distribution<float> distShipSpeed(80.f, 150.f);
-    std::uniform_real_distribution<float> distProjSpeed(300.f, 600.f);
-
-    const sf::Texture &scoutTex = resources.getTexture("../assets/img/ships/Klingon_Ship_1.png");
-
-    auto enemyFireAction = [this](ProjectileType type, const sf::Vector2f &pos, int dmg, float speed)
-    {
-        sf::Vector2f direction(0.f, 1.f);
-        const sf::Texture &tex = resources.getTexture("../assets/img/Shots/Laser/Klingon_Shot_1.png");
-
-        auto &p = manager.add<LaserProjectile>(direction, speed, dmg, tex, Faction::Alien);
-        p.setPosition(pos);
-    };
-
-    for (int i = 0; i < count; ++i)
-    {
-        float x = distX(rng);
-        float y = distY(rng);
-
-        auto &enemy = manager.add<Scout>(scoutTex, sf::Vector2f(x, y));
-
-        enemy.setSpeed(distShipSpeed(rng));
-        enemy.setFireRate(distFireRate(rng));
-        enemy.setProjectileSpeed(distProjSpeed(rng));
-
-        enemy.setFireCallback(enemyFireAction);
-        enemy.setHealth(30.f);
-    }
-}
-
-void GameScene::spawnPowerUp(sf::Vector2f position)
-{
-    std::uniform_int_distribution<int> distChance(0, 105);
-    int roll = distChance(rng);
-
-    PowerUpType type;
-
-    if (roll <= 35)
-        type = PowerUpType::SHIELD;
-    else if (roll <= 65)
-        type = PowerUpType::RAPID_FIRE;
-    else if (roll <= 85)
-        type = PowerUpType::DOUBLE_SHOT;
-    else if (roll <= 94)
-        type = PowerUpType::INVINCIBILITY;
-    else if (roll <= 100)
-        type = PowerUpType::HEAL;
-    else
-        type = PowerUpType::EXTRA_LIFE;
-
-    std::string texturePath;
-    switch (type)
-    {
-    case PowerUpType::SHIELD:
-        texturePath = "../assets/img/PowerUps/PU_Extra_Shield.png";
-        break;
-    case PowerUpType::DOUBLE_SHOT:
-        texturePath = "../assets/img/PowerUps/PU_Double_Shot.png";
-        break;
-    case PowerUpType::RAPID_FIRE:
-        texturePath = "../assets/img/PowerUps/PU_Rapid_Fire.png";
-        break;
-    case PowerUpType::INVINCIBILITY:
-        texturePath = "../assets/img/PowerUps/PU_Invencibility.png";
-        break;
-    case PowerUpType::HEAL:
-        texturePath = "../assets/img/PowerUps/PU_Heal.png";
-        break;
-    case PowerUpType::EXTRA_LIFE:
-        texturePath = "../assets/img/PowerUps/PU_Extra_Life_Rainbow.png";
-        break;
-    }
-
-    const sf::Texture &tex = resources.getTexture(texturePath);
-    manager.add<PowerUp>(position, type, tex);
 }

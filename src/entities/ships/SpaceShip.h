@@ -1,11 +1,15 @@
 #pragma once
-#include <SFML/Graphics.hpp>
 #include "../Entity.h"
 #include "../../weapons/Weapon.h"
 #include "../items/PowerUp.h"
 #include "../../data/ShipData.h"
+
+#include <SFML/Graphics.hpp>
 #include <optional>
 #include <memory>
+#include <functional>
+
+using OnLifeLostCallback = std::function<void(sf::Vector2f)>;
 
 class SpaceShip : public Entity
 {
@@ -29,6 +33,8 @@ private:
     sf::Texture shieldTexture;
     sf::Sprite shieldSprite;
 
+    OnLifeLostCallback onLifeLost = nullptr;
+
     Weapon *laserLauncher = nullptr;
     Weapon *missileLauncher = nullptr;
 
@@ -48,6 +54,7 @@ public:
 
     void setWorldBounds(sf::Vector2f bounds);
     void setWeaponsCallback(OnFireCallback callback);
+    void setOnLifeLostCallback(OnLifeLostCallback callback);
 
     sf::FloatRect getBounds() const override;
 
