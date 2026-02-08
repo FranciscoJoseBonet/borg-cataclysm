@@ -1,128 +1,140 @@
 #include "CollisionManager.h"
-
-#include "../entities/projectiles/Projectile.h"
 #include "../entities/ships/SpaceShip.h"
+#include "../entities/ships/enemies/Enemy.h"
+#include "../entities/projectiles/Projectile.h"
 #include "../entities/items/PowerUp.h"
-
 #include <iostream>
 
 void CollisionManager::checkCollisions(EntityManager &manager)
 {
-    auto &entities = manager.getEntities();
+    auto &allEntities = manager.getEntities();
 
+    std::vector<Projectile *> playerProjectiles;
+    std::vector<Projectile *> enemyProjectiles;
+    std::vector<Enemy *> enemies;
+    std::vector<PowerUp *> powerups;
     SpaceShip *player = nullptr;
-    for (size_t i = 0; i < entities.size(); ++i)
+
+    for (auto &uPtr : allEntities)
     {
-        if (auto p = dynamic_cast<SpaceShip *>(entities[i].get()))
+        if (!uPtr->isAlive())
+            continue;
+
+        Entity *e = uPtr.get();
+
+        if (auto p = dynamic_cast<SpaceShip *>(e))
         {
             player = p;
-            break;
+            continue;
+        }
+
+        if (auto proj = dynamic_cast<Projectile *>(e))
+        {
+            if (proj->getFaction() == Faction::Player)
+                playerProjectiles.push_back(proj);
+            else
+                enemyProjectiles.push_back(proj);
+            continue;
+        }
+
+        if (auto enemy = dynamic_cast<Enemy *>(e))
+        {
+            enemies.push_back(enemy);
+            continue;
+        }
+
+        if (auto pu = dynamic_cast<PowerUp *>(e))
+        {
+            powerups.push_back(pu);
+            continue;
         }
     }
 
-    for (size_t i = 0; i < entities.size(); ++i)
+    for (auto proj : playerProjectiles)
     {
-        auto &entityA = entities[i];
-
-        if (!entityA->isAlive())
+        if (!proj->isAlive())
             continue;
+        sf::FloatRect projBounds = proj->getBounds();
 
-        Projectile *proj = dynamic_cast<Projectile *>(entityA.get());
-        if (proj)
+        for (auto enemy : enemies)
         {
-            for (size_t j = 0; j < entities.size(); ++j)
+            if (!enemy->isAlive())
+                continue;
+
+            if (projBounds.findIntersection(enemy->getBounds()))
             {
-                if (i == j)
-                    continue;
+                proj->destroy();
+                enemy->takeDamage(static_cast<float>(proj->getDamage()));
 
-                auto &entityB = entities[j];
-
-                if (!entityB->isAlive())
-                    continue;
-                if (dynamic_cast<PowerUp *>(entityB.get()))
-                    continue;
-                if (dynamic_cast<Projectile *>(entityB.get()))
-                    continue;
-
-                if (proj->getFaction() != entityB->getFaction())
+                if (onProjectileImpact)
                 {
-                    if (entityB.get() == player && player->isInvulnerableState())
-                    {
-                        continue;
-                    }
-
-                    if (proj->getBounds().findIntersection(entityB->getBounds()))
-                    {
-                        bool wasAlive = entityB->isAlive();
-                        entityB->takeDamage(proj->getDamage());
-
-                        if (proj->getFaction() == Faction::Player && entityB->getFaction() == Faction::Alien)
-                        {
-                            if (onProjectileImpact)
-                            {
-                                onProjectileImpact(proj->getPosition());
-                            }
-                        }
-
-                        if (wasAlive && !entityB->isAlive())
-                        {
-                            if (entityB->getFaction() == Faction::Alien && onEnemyDeath)
-                            {
-                                onEnemyDeath(entityB->getPosition());
-                            }
-                        }
-
-                        proj->destroy();
-                        break;
-                    }
+                    onProjectileImpact(proj->getPosition(), proj->getType());
                 }
+
+                if (enemy->getHealth() <= 0)
+                {
+                    if (onEnemyDeath)
+                        onEnemyDeath(enemy->getPosition());
+                    enemy->destroy();
+                }
+                break;
             }
         }
+    }
 
-        if (player && entityA.get() == player)
+    if (!player || !player->isAlive())
+        return;
+    sf::FloatRect playerBounds = player->getBounds();
+
+    for (auto pu : powerups)
+    {
+        if (!pu->isAlive())
+            continue;
+
+        if (playerBounds.findIntersection(pu->getBounds()))
         {
-            for (size_t j = 0; j < entities.size(); ++j)
+            player->applyPowerUp(pu->getPowerType());
+            pu->destroy();
+        }
+    }
+
+    for (auto enemy : enemies)
+    {
+        if (!enemy->isAlive())
+            continue;
+
+        if (playerBounds.findIntersection(enemy->getBounds()))
+        {
+            if (player->isInvulnerableState())
             {
-                if (i == j)
-                    continue;
-
-                auto &entityB = entities[j];
-
-                if (!entityB->isAlive())
-                    continue;
-
-                if (auto powerUp = dynamic_cast<PowerUp *>(entityB.get()))
-                {
-                    if (player->getBounds().findIntersection(powerUp->getBounds()))
-                    {
-                        player->applyPowerUp(powerUp->getPowerType());
-                        powerUp->destroy();
-                    }
-                }
-
-                else if (entityB->getFaction() == Faction::Alien && !dynamic_cast<Projectile *>(entityB.get()))
-                {
-                    if (player->getBounds().findIntersection(entityB->getBounds()))
-                    {
-                        if (player->isInvulnerableState())
-                        {
-                            entityB->takeDamage(1000.f);
-                            if (onEnemyDeath)
-                                onEnemyDeath(entityB->getPosition());
-                        }
-                        else
-                        {
-                            float crashDamage = entityB->getHealth() / 2.f;
-
-                            player->takeDamage(crashDamage);
-
-                            entityB->takeDamage(1000.f);
-                            if (onEnemyDeath)
-                                onEnemyDeath(entityB->getPosition());
-                        }
-                    }
-                }
+                enemy->takeDamage(1000.f);
+                if (onEnemyDeath)
+                    onEnemyDeath(enemy->getPosition());
             }
+            else
+            {
+                float damage = enemy->getHealth() / 2.f;
+                player->takeDamage(damage);
+
+                enemy->takeDamage(1000.f);
+                if (onEnemyDeath)
+                    onEnemyDeath(enemy->getPosition());
+            }
+        }
+    }
+
+    for (auto proj : enemyProjectiles)
+    {
+        if (!proj->isAlive())
+            continue;
+
+        if (playerBounds.findIntersection(proj->getBounds()))
+        {
+            if (!player->isInvulnerableState())
+            {
+                player->takeDamage(static_cast<float>(proj->getDamage()));
+            }
+            proj->destroy();
         }
     }
 }

@@ -103,12 +103,33 @@ GameScene::GameScene(sf::RenderWindow &w)
         std::uniform_real_distribution<float> chanceDist(0.f, 1.f);
         if (chanceDist(rng) <= 0.4f) spawnPowerUp(deathPos); });
 
-    collisionManager.setOnProjectileImpact([this](sf::Vector2f impactPos)
+    collisionManager.setOnProjectileImpact([this](sf::Vector2f impactPos, ProjectileType type)
                                            {
-        const sf::Texture& impactTex = resources.getTexture("../assets/img/Shots/Laser/SS_Impact_Laser.png");
-
-        int cols = 6;
+        std::string texturePath;
+        int cols = 1;
         int rows = 1;
+        float scale = 1.0f;
+        float duration = 0.2f;
+
+        if (type == ProjectileType::MISSILE)
+        {
+            texturePath = "../assets/img/Shots/Missile/SS_Impact_Missile.png"; 
+            cols = 8; 
+            rows = 1;
+            scale = 1.2f;
+            duration = 0.3f; 
+        }
+        else 
+        {
+            texturePath = "../assets/img/Shots/Laser/SS_Impact_Laser.png";
+            cols = 6;
+            rows = 1;
+            scale = 0.6f;
+            duration = 0.2f;
+        }
+
+        const sf::Texture& impactTex = resources.getTexture(texturePath);
+
         int frameWidth = impactTex.getSize().x / cols;
         int frameHeight = impactTex.getSize().y / rows;
 
@@ -117,10 +138,11 @@ GameScene::GameScene(sf::RenderWindow &w)
             impactTex, 
             sf::Vector2i(frameWidth, frameHeight), 
             cols * rows, 
-            0.2f
+            duration
         );
+        
         effect->move({0.f, -15.f});
-        effect->setScale({0.6f, 0.6f});
+        effect->setScale({scale, scale});
         
         std::uniform_real_distribution<float> rotDist(0.f, 360.f);
         effect->setRotation(sf::degrees(rotDist(rng)));

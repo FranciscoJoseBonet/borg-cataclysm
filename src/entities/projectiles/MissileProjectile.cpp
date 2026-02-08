@@ -9,7 +9,7 @@ MissileProjectile::MissileProjectile(
     int damage,
     const sf::Texture &texture,
     Faction faction)
-    : Projectile(direction, initialSpeed, damage, faction),
+    : Projectile(direction, initialSpeed, damage, faction, ProjectileType::MISSILE),
       maxSpeed(maxSpeed),
       acceleration(1000.f)
 {

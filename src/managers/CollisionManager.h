@@ -1,12 +1,14 @@
 #pragma once
-#include "EntityManager.h"
 #include <functional>
+#include <SFML/Graphics.hpp>
+#include "EntityManager.h"
+#include "../entities/projectiles/Projectile.h"
 
 class CollisionManager
 {
 private:
     std::function<void(sf::Vector2f)> onEnemyDeath;
-    std::function<void(sf::Vector2f)> onProjectileImpact;
+    std::function<void(sf::Vector2f, ProjectileType)> onProjectileImpact;
 
 public:
     void checkCollisions(EntityManager &manager);
@@ -16,7 +18,7 @@ public:
         onEnemyDeath = callback;
     }
 
-    void setOnProjectileImpact(std::function<void(sf::Vector2f)> callback)
+    void setOnProjectileImpact(std::function<void(sf::Vector2f, ProjectileType)> callback)
     {
         onProjectileImpact = callback;
     }

@@ -2,12 +2,7 @@
 #include <string>
 #include <functional>
 #include <SFML/System/Vector2.hpp>
-
-enum class ProjectileType
-{
-    LASER,
-    MISSILE
-};
+#include "../entities/projectiles/Projectile.h"
 
 using OnFireCallback = std::function<void(ProjectileType, const sf::Vector2f &, int, float)>;
 

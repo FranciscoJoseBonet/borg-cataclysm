@@ -58,7 +58,6 @@ public:
             entities.end());
     }
 
-    // Devuelve una referencia al vector de entidades.
     vector<unique_ptr<Entity>> &getEntities()
     {
         return entities;

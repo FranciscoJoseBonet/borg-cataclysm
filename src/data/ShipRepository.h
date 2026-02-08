@@ -9,27 +9,27 @@ public:
     {
         static std::vector<ShipData> ships = {
 
-            // 1. USS Enterprise (Equilibrada)
+            // USS Enterprise
             {
                 "USS Enterprise",
                 "../assets/img/Ships/enterprise-001.PNG",
                 100.f, // Max Health
                 150.f, // Speed
 
-                // Arma Primaria (Phaser)
+                // Arma Primaria
                 {"Phaser Bank", 0.2f, 600.f, 10, "../assets/img/Shots/Laser/Federation_Shot_1.png"},
 
-                // Arma Secundaria (Fotones)
+                // Arma Secundaria
                 {"Photon Torpedo", 1.0f, 100.f, 50, "../assets/img/Shots/Missile/Federation_Shot_2.png"},
 
                 "../assets/img/Shield.png",
                 "../assets/img/Ships/SS_Enterprise_destruction.png",
                 {128, 128}, // Tamaño frame explosión
-                10,         // Frames explosión
+                9,          // Frames explosión
                 "La insignia de la Flota Estelar. Una nave equilibrada con buena velocidad y potencia de fuego, ideal para cualquier tipo de mision.",
                 "../assets/img/Planets/Planet_Earth.png"},
 
-            // 2. Vulcan Science Vessel
+            // Vulcan Science Vessel
             {
                 "Vulcan Science Vessel",
                 "../assets/img/Ships/Vulcan_Vessel.png",
@@ -75,8 +75,8 @@ public:
 
                 "../assets/img/Shield.png",
                 "../assets/img/Ships/SS_Voyager_destruction.png",
-                {115, 230},
-                8,
+                {94, 170},
+                7,
                 "Clase Intrepid. Agil y avanzada. Cuenta con sistemas bioneurales y armamento experimental del Cuadrante Delta.",
                 "../assets/img/Planets/Planet_Nebulose.png"},
 

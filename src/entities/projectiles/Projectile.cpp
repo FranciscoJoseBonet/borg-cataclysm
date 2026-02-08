@@ -1,10 +1,11 @@
 #include "Projectile.h"
 
-Projectile::Projectile(sf::Vector2f direction, float speed, int damage, Faction faction)
+Projectile::Projectile(sf::Vector2f direction, float speed, int damage, Faction faction, ProjectileType type)
     : Entity(1, "Projectile", faction),
       direction(direction),
       speed(speed),
-      damage(damage)
+      damage(damage),
+      type(type)
 {
 }
 

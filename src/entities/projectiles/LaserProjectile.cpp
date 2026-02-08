@@ -8,7 +8,7 @@ LaserProjectile::LaserProjectile(
     int damage,
     const sf::Texture &texture,
     Faction faction)
-    : Projectile(direction, speed, damage, faction)
+    : Projectile(direction, speed, damage, faction, ProjectileType::LASER)
 {
     sprite.emplace(texture);
 
