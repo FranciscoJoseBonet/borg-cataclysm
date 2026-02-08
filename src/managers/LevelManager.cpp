@@ -1,7 +1,11 @@
 #include "LevelManager.h"
+
 #include "../entities/ships/enemies/Scout.h"
+#include "../entities/ships/enemies/Explorer.h"
 #include "../entities/projectiles/LaserProjectile.h"
+#include "../entities/projectiles/CurvedProjectile.h"
 #include "../entities/items/PowerUp.h"
+
 #include <iostream>
 
 LevelManager::LevelManager(EntityManager &em, ResourceManager &rm, sf::Vector2f bounds)
@@ -26,7 +30,6 @@ void LevelManager::update(float dt)
 
     if (!anyEnemyAlive && enemiesToSpawn <= 0)
     {
-        // PASAR DE NIVEL
         currentLevel++;
         std::cout << "Iniciando Nivel: " << currentLevel << std::endl;
 
@@ -36,14 +39,15 @@ void LevelManager::update(float dt)
         }
         else if (currentLevel == 2)
         {
-            spawnScoutWave(10);
-            // spawnExplorerWave(5); // Descomentar en Fase 2
+            spawnScoutWave(8);
+            spawnExplorerWave(4);
         }
         else
         {
-            // Nivel Infinito
             int count = 10 + (currentLevel * 2);
             spawnScoutWave(count);
+            if (currentLevel > 3)
+                spawnExplorerWave(currentLevel);
         }
     }
     else if (!waveInProgress && enemiesToSpawn > 0)
@@ -56,8 +60,11 @@ void LevelManager::update(float dt)
 void LevelManager::spawnScoutWave(int count)
 {
     std::uniform_real_distribution<float> distX(50.f, worldBounds.x - 50.f);
-    std::uniform_real_distribution<float> distY(-1000.f, -100.f);
-    std::uniform_real_distribution<float> distSpeed(80.f, 150.f);
+    std::uniform_real_distribution<float> distY(-1200.f, -100.f);
+
+    std::uniform_real_distribution<float> distSpeed(80.f, 180.f);
+    std::uniform_real_distribution<float> distFireRate(0.5f, 2.5f);
+    std::uniform_real_distribution<float> distProjSpeed(300.f, 500.f);
 
     const sf::Texture &scoutTex = resources.getTexture("../assets/img/ships/Klingon_Ship_1.png");
 
@@ -77,9 +84,42 @@ void LevelManager::spawnScoutWave(int count)
 
         auto &enemy = entityManager.add<Scout>(scoutTex, sf::Vector2f(x, y));
 
-        enemy.setSpeed(distSpeed(rng));
         enemy.setFireCallback(enemyFireAction);
-        enemy.setHealth(30.f);
+
+        enemy.setSpeed(distSpeed(rng));
+        enemy.setFireRate(distFireRate(rng));
+        enemy.setProjectileSpeed(distProjSpeed(rng));
+    }
+    waveInProgress = true;
+}
+
+void LevelManager::spawnExplorerWave(int count)
+{
+
+    std::uniform_real_distribution<float> distX(150.f, worldBounds.x - 150.f);
+    std::uniform_real_distribution<float> distY(-1500.f, -200.f);
+
+    const sf::Texture &romulanTex = resources.getTexture("../assets/img/ships/Romulan_Explorer.png");
+
+    auto romulanFireAction = [this](ProjectileType type, const sf::Vector2f &pos, int dmg, float speed)
+    {
+        const sf::Texture &tex = resources.getTexture("../assets/img/Shots/Missile/Romulan_Shot_2.png");
+
+        sf::Vector2f dir(0.f, 1.f);
+
+        entityManager.add<CurvedProjectile>(pos, dir, speed, dmg, 5.0f, tex, Faction::Alien);
+        entityManager.add<CurvedProjectile>(pos, dir, speed, dmg, -5.0f, tex, Faction::Alien);
+    };
+
+    for (int i = 0; i < count; ++i)
+    {
+        float x = distX(rng);
+        float y = distY(rng);
+
+        auto &enemy = entityManager.add<Explorer>(romulanTex, sf::Vector2f(x, y));
+
+        enemy.setFireCallback(romulanFireAction);
+        enemy.setProjectileSpeed(250.f);
     }
     waveInProgress = true;
 }
@@ -138,6 +178,5 @@ void LevelManager::trySpawnPowerUp(sf::Vector2f position)
     }
 
     const sf::Texture &tex = resources.getTexture(texturePath);
-
     entityManager.add<PowerUp>(position, type, tex);
 }

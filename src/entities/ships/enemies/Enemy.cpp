@@ -1,42 +1,41 @@
 #include "Enemy.h"
 
-Enemy::Enemy(float health, const std::string &type, float fireRate)
+Enemy::Enemy(const sf::Texture &texture, float health, const std::string &type, float fireRate)
     : Entity(health, type, Faction::Alien),
-      fireTimer(0.f)
+      fireTimer(0.f),
+      fireInterval(fireRate),
+      speed(100.f),
+      projectileSpeed(300.f),
+      damage(10)
 {
-    fireInterval = (fireRate > 0) ? (1.f / fireRate) : 0.f;
+    sprite.emplace(texture);
+    if (sprite)
+    {
+        auto bounds = sprite->getLocalBounds();
+        sprite->setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
+        sprite->setRotation(sf::degrees(180.f));
+    }
 }
 
-Enemy::~Enemy()
-{
-    delete weapon;
-}
+Enemy::~Enemy() {}
 
-void Enemy::setFireCallback(OnFireCallback callback)
-{
-    onFire = callback;
-    if (weapon)
-        weapon->setCallback(callback);
-}
+void Enemy::setFireCallback(OnFireCallback callback) { onFire = callback; }
+void Enemy::setFireRate(float rate) { fireInterval = rate; }
+void Enemy::setProjectileSpeed(float s) { projectileSpeed = s; }
 
 void Enemy::update(float deltaTime)
 {
-
-    movePattern(deltaTime);
-
     fireTimer += deltaTime;
-
-    if (fireTimer >= fireInterval && getPosition().y > 0)
+    if (fireTimer >= fireInterval)
     {
-        if (weapon)
+        fireTimer = 0;
+        if (onFire)
         {
-            weapon->Shoot(getPosition() + sf::Vector2f(0.f, 120.f));
+            onFire(ProjectileType::LASER, getPosition(), damage, projectileSpeed);
         }
-        fireTimer = 0.f;
     }
 
-    if (weapon)
-        weapon->update(deltaTime);
+    movePattern(deltaTime);
 
     if (getPosition().y > 1100.f)
     {
@@ -46,18 +45,18 @@ void Enemy::update(float deltaTime)
 
 void Enemy::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
-}
-
-void Enemy::setFireRate(float rate)
-{
-    fireInterval = (rate > 0) ? (1.f / rate) : 0.f;
-    fireTimer = 0.f;
-}
-
-void Enemy::setProjectileSpeed(float speed)
-{
-    if (weapon)
+    if (sprite)
     {
-        weapon->setProjectileSpeed(speed);
+        states.transform *= getTransform();
+        target.draw(*sprite, states);
     }
+}
+
+sf::FloatRect Enemy::getBounds() const
+{
+    if (sprite)
+    {
+        return getTransform().transformRect(sprite->getGlobalBounds());
+    }
+    return sf::FloatRect();
 }

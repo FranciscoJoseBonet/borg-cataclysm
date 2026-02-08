@@ -14,7 +14,7 @@ public:
                 "USS Enterprise",
                 "../assets/img/Ships/enterprise-001.PNG",
                 100.f, // Max Health
-                150.f, // Speed
+                300.f, // Speed
 
                 // Arma Primaria
                 {"Phaser Bank", 0.2f, 600.f, 10, "../assets/img/Shots/Laser/Federation_Shot_1.png"},
