@@ -3,26 +3,23 @@
 #include <memory>
 #include "../scenes/Scene.h"
 
-struct Resolution
-{
-    unsigned int width;
-    unsigned int height;
-};
-
 class Game
 {
 private:
+    // --- Variables de Estado ---
     sf::RenderWindow window;
-    Resolution res;
-    std::unique_ptr<Scene> currentScene;
+    std::unique_ptr<Scene> currentScene; // Puntero inteligente para manejo polimorfico de escenas
+    bool isFullscreen;
 
-    bool isFullscreen = true;
-
+    // --- Métodos Auxiliares ---
     void toggleFullscreen();
 
 public:
     Game();
+
+    // Bucle principal del juego
     void run();
 
+    // Getter necesario para pasar la ventana a las escenas si hace falta
     sf::RenderWindow &getWindow() { return window; }
 };

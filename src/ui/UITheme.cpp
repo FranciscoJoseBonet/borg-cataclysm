@@ -13,7 +13,7 @@ UITheme::UITheme()
     {
         std::cerr << "UITheme: Error cargando Title Font. Usando fallback.\n";
 
-        if (!titleFont.openFromFile("../assets/fonts/pixel_font.ttf"))
+        if (!titleFont.openFromFile("../assets/fonts/Star_Trek.ttf"))
         {
             std::cerr << "UITheme: FATAL - No se pudo cargar la fuente de titulo de respaldo.\n";
         }

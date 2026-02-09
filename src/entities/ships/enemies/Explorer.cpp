@@ -48,6 +48,6 @@ void Explorer::movePattern(float dt)
         float direction = std::cos((timeAlive * frequency) + startPhase);
 
         float tilt = direction * 15.f;
-        sprite->setRotation(sf::degrees(180.f - tilt));
+        sprite->setRotation(sf::degrees(tilt));
     }
 }
