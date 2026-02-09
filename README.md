@@ -69,6 +69,8 @@ src/
 
 ### Pasos para Compilar
 
+**Si se va a compilar el proyecto configurar correctamente el cmakelists con los requisitos para el uso local de cmake**
+
 ```bash
 # 1. Clonar el repositorio
 git clone https://github.com/FranciscoJoseBonet/borg-cataclysm.git
