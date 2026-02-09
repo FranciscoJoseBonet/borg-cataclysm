@@ -10,7 +10,7 @@
 
 Game::Game()
 {
-    // Config inicial. Arrancamos en Fullscreen detectando la resolución nativa.
+    // Config inicial y arrancamos en Fullscreen detectando la resolución nativa
     auto desktopMode = sf::VideoMode::getDesktopMode();
     isFullscreen = true;
 
@@ -25,7 +25,7 @@ void Game::toggleFullscreen()
 {
     isFullscreen = !isFullscreen;
 
-    // SFML requiere recrear la ventana para cambiar el estilo
+    // SFML nos pide recrear la ventana para cambiar el estilo
     if (isFullscreen)
     {
         auto mode = sf::VideoMode::getDesktopMode();

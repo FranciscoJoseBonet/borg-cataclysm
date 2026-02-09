@@ -2,41 +2,59 @@
 
 Enemy::Enemy(const sf::Texture &texture, float health, const std::string &type, float fireRate)
     : Entity(health, type, Faction::Alien),
+      sprite(texture),
       fireTimer(0.f),
       fireInterval(fireRate),
       speed(100.f),
       projectileSpeed(300.f),
       damage(10)
 {
-    sprite.emplace(texture);
-    if (sprite)
-    {
-        auto bounds = sprite->getLocalBounds();
-        sprite->setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
-        sprite->setRotation(sf::degrees(180.f));
-    }
+    // Configuracion basica del Sprite
+    auto bounds = sprite.getLocalBounds();
+    sprite.setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
 }
 
-Enemy::~Enemy() {}
+// Config
 
-void Enemy::setFireCallback(OnFireCallback callback) { onFire = callback; }
-void Enemy::setFireRate(float rate) { fireInterval = rate; }
-void Enemy::setProjectileSpeed(float s) { projectileSpeed = s; }
+void Enemy::setFireCallback(OnFireCallback callback)
+{
+    onFire = callback;
+}
+
+void Enemy::setFireRate(float rate)
+{
+    fireInterval = rate;
+}
+
+void Enemy::setProjectileSpeed(float s)
+{
+    projectileSpeed = s;
+}
+
+// Ciclo de vida
 
 void Enemy::update(float deltaTime)
 {
-    fireTimer += deltaTime;
-    if (fireTimer >= fireInterval)
+    // 1. Logica de Disparo
+    // Empiezan a disparar cuando estan cerca de entrar en la pantalla
+    if (getPosition().y > -150.f)
     {
-        fireTimer = 0;
-        if (onFire)
+        fireTimer += deltaTime;
+        if (fireTimer >= fireInterval)
         {
-            onFire(ProjectileType::LASER, getPosition(), damage, projectileSpeed);
+            fireTimer = 0.f; // Reset del timer
+            if (onFire)
+            { // Dispara un laser común desde su posicion
+                onFire(ProjectileType::LASER, getPosition(), damage, projectileSpeed);
+            }
         }
     }
 
+    // 2. Movimiento (Delegado a la clase hija el scout, explorer o boss)
     movePattern(deltaTime);
 
+    // 3. Logica de respawn para los que se van del mapa
+    // para que vuelva a bajar, asi la wave no termina hasta que el jugador lo mate
     if (getPosition().y > 1200.f)
     {
         setPosition({getPosition().x, -200.f});
@@ -45,18 +63,13 @@ void Enemy::update(float deltaTime)
 
 void Enemy::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
-    if (sprite)
-    {
-        states.transform *= getTransform();
-        target.draw(*sprite, states);
-    }
+    // Aplicamos transformacion y dibujamos
+    states.transform *= getTransform();
+    target.draw(sprite, states);
 }
 
 sf::FloatRect Enemy::getBounds() const
 {
-    if (sprite)
-    {
-        return getTransform().transformRect(sprite->getGlobalBounds());
-    }
-    return sf::FloatRect();
+    // Devolvemos la caja de colision ajustada a la posicion real
+    return getTransform().transformRect(sprite.getGlobalBounds());
 }

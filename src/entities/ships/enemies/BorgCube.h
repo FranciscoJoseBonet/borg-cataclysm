@@ -5,15 +5,18 @@
 class BorgCube : public Enemy
 {
 private:
-    int bossStage;
-    float hoverTime;
-    int directionX;
+    // Estado del Boss
+    int bossStage;     // Nivel de dificultad (determina tamaño y vida)
+    float screenWidth; // Necesario para saber donde rebotar
 
-    float screenWidth;
+    // MOvimiento
+    float hoverTime; // Acumulador para la funcion Seno
+    int directionX;  // 1 o -1
 
 public:
     BorgCube(const sf::Texture &texture, sf::Vector2f startPos, int bossStage, float screenWidth);
 
-    void update(float dt) override;
+    // Solo necesitamos definir el patron de movimiento
+    // porque el update general lo maneja la clase Enemy
     void movePattern(float dt) override;
 };

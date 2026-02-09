@@ -6,14 +6,10 @@ class MissileProjectile : public Projectile
 private:
     float maxSpeed;
     float acceleration;
+    float currentSpeed; // Variable interna para rastrear la velocidad actual
 
 public:
     MissileProjectile(sf::Vector2f direction, float initialSpeed, float maxSpeed, int damage, const sf::Texture &texture, Faction faction);
 
     void update(float deltaTime) override;
-
-protected:
-    void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
-
-    void destroy() override;
 };

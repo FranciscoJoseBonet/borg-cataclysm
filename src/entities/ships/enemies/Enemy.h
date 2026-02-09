@@ -1,43 +1,49 @@
 #pragma once
 #include "../../Entity.h"
-#include <SFML/Graphics.hpp>
-#include <optional>
-#include <functional>
 #include "../../projectiles/Projectile.h"
+#include <SFML/Graphics.hpp>
+#include <functional>
 
-using OnFireCallback = std::function<void(ProjectileType, const sf::Vector2f &, int, float)>;
+// Definimos el tipo de funcion para disparar
+using OnFireCallback = std::function<void(ProjectileType, const sf::Vector2f &, int, float)>; // Callback
 
 class Enemy : public Entity
 {
 protected:
-    float fireTimer;
-    float fireInterval;
+    // Estadísticas de combate
     float speed;
+    int damage; // Daño por colision
 
+    // Sistema de disparo
+    float fireTimer;
+    float fireInterval; // Cadencia (tiempo entre los tiros)
     float projectileSpeed;
-    int damage;
 
-    std::optional<sf::Sprite> sprite;
-    OnFireCallback onFire;
+    OnFireCallback onFire; // Funcion que ejecuta el LevelManager para crear la bala
+
+    // Visuales
+    sf::Sprite sprite; // Sprite directo
+
+    // Metodo interno para renderizar
+    void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
 public:
     Enemy(const sf::Texture &texture, float health, const std::string &type, float fireRate);
-    virtual ~Enemy();
+    virtual ~Enemy() = default;
 
-    void setFireCallback(OnFireCallback callback);
-    void setFireRate(float rate);
-
-    void setProjectileSpeed(float s);
-
-    void setSpeed(float s) { speed = s; }
-    float getSpeed() const { return speed; }
-
+    // Ciclo de vIda
     void update(float deltaTime) override;
 
-    virtual void movePattern(float deltaTime) {}
+    // Como metodo virtual puro porque cada enemigo DEBE definir su patron de movimiento
+    virtual void movePattern(float deltaTime) = 0;
 
+    // setters
+    void setFireCallback(OnFireCallback callback);
+    void setFireRate(float rate);
+    void setProjectileSpeed(float s);
+    void setSpeed(float s) { speed = s; }
+
+    // getters
+    float getSpeed() const { return speed; }
     sf::FloatRect getBounds() const override;
-
-protected:
-    void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 };

@@ -2,7 +2,7 @@
 
 int main()
 {
-    // Punto de entrada. Instancia el motor y arranca el bucle.
+    // Punto de entrada, aca se instancia el motor y arranca el bucle
     Game game;
     game.run();
     return 0;

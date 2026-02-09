@@ -1,7 +1,6 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <optional>
 #include "../Entity.h"
 
 enum class ProjectileType
@@ -13,28 +12,30 @@ enum class ProjectileType
 class Projectile : public Entity
 {
 protected:
+    // Estadisticas de combate
     sf::Vector2f direction;
     float speed;
     int damage;
 
     ProjectileType type;
 
-    std::optional<sf::Sprite> sprite;
+    // Visuales
+    sf::Sprite sprite;
 
+    // Metodo interno para que la ventana nos dibuje el proy
     void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
 public:
-    Projectile(sf::Vector2f direction, float speed, int damage, Faction faction, ProjectileType type);
-
-    sf::FloatRect getBounds() const override;
-
-    int getDamage() const { return damage; }
-
-    ProjectileType getType() const { return type; }
+    Projectile(sf::Vector2f direction, float speed, int damage, const sf::Texture &texture, Faction faction, ProjectileType type);
 
     virtual ~Projectile() = default;
 
+    // Ciclo de vidadel proj
     void update(float deltaTime) override;
 
-    void destroy() override;
+    // Gtt
+    sf::FloatRect getBounds() const override;
+
+    int getDamage() const { return damage; }
+    ProjectileType getType() const { return type; }
 };

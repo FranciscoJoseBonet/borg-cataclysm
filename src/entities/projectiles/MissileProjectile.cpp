@@ -9,39 +9,26 @@ MissileProjectile::MissileProjectile(
     int damage,
     const sf::Texture &texture,
     Faction faction)
-    : Projectile(direction, initialSpeed, damage, faction, ProjectileType::MISSILE),
+    : Projectile(direction, initialSpeed, damage, texture, faction, ProjectileType::MISSILE),
       maxSpeed(maxSpeed),
-      acceleration(1000.f)
+      acceleration(1000.f),
+      currentSpeed(initialSpeed)
 {
-    sprite.emplace(texture);
-
-    auto bounds = sprite->getLocalBounds();
-    sprite->setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
-
-    sprite->setScale({0.4f, 0.4f});
-
-    float angle = std::atan2(direction.y, direction.x) * 180.f / 3.14159265f;
-    sprite->setRotation(sf::degrees(angle));
+    // Ajuste visual especifico del misil
+    sprite.setScale({0.4f, 0.4f});
 }
 
 void MissileProjectile::update(float deltaTime)
 {
-    if (speed < maxSpeed)
-        speed += acceleration * deltaTime;
+    // Acelera hasta llegar a velocidad maxima
+    if (currentSpeed < maxSpeed)
+    {
+        currentSpeed += acceleration * deltaTime;
 
-    move(direction * speed * deltaTime);
-}
+        // Actualizamos la variable speed heredada del padre para que el move() funcione
+        speed = currentSpeed;
+    }
 
-void MissileProjectile::draw(sf::RenderTarget &target, sf::RenderStates states) const
-{
-    if (!sprite)
-        return;
-
-    states.transform *= getTransform();
-    target.draw(*sprite, states);
-}
-
-void MissileProjectile::destroy()
-{
-    Entity::destroy();
+    // Movimiento base del proyectil, direccion * velocidad
+    move(direction * speed * deltaTime); // Move es de sfml
 }

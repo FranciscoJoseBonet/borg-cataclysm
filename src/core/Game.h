@@ -6,12 +6,12 @@
 class Game
 {
 private:
-    // --- Variables de Estado ---
+    // Var de estado del game
     sf::RenderWindow window;
     std::unique_ptr<Scene> currentScene; // Puntero inteligente para manejo polimorfico de escenas
     bool isFullscreen;
 
-    // --- Métodos Auxiliares ---
+    // Metodos aux
     void toggleFullscreen();
 
 public:

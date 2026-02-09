@@ -1,91 +1,93 @@
 #include "BorgCube.h"
 #include <cmath>
-#include <iostream> // Para debug si hace falta
+#include <iostream>
 
-BorgCube::BorgCube(const sf::Texture &texture, sf::Vector2f startPos, int stage, float screenWidth)
-    : Enemy(texture, 1000.f, "Borg Cube", 1.0f)
+BorgCube::BorgCube(const sf::Texture &texture, sf::Vector2f startPos, int stage, float sWidth)
+    : Enemy(texture, 1000.f, "Borg Cube", 1.0f), // Vida base alta
+      bossStage(stage),
+      screenWidth(sWidth),
+      hoverTime(0.f),
+      directionX(1)
 {
-    this->bossStage = stage;
-    this->screenWidth = screenWidth;
-    this->hoverTime = 0.f;
-    this->directionX = 1;
-
     setPosition(startPos);
 
+    // 1. Config de dificultad (Segun el nivel actual)
     float targetWidthPercent = 0.15f;
     float hpMultiplier = 1.0f;
     float fireRateBase = 1.0f;
 
-    if (bossStage == 1) // Nivel 3
+    if (bossStage == 1) // Primer pvp
     {
-        targetWidthPercent = 0.15f;
+        targetWidthPercent = 0.15f; // Pequeño
         hpMultiplier = 1.0f;
         fireRateBase = 1.0f;
     }
-    else if (bossStage == 2) // Nivel 6
+    else if (bossStage == 2) // Segundo pvp
     {
         targetWidthPercent = 0.25f;
         hpMultiplier = 2.5f;
         fireRateBase = 0.8f;
     }
-    else // Nivel 9+
+    else // Pvps finales
     {
-        targetWidthPercent = 0.40f;
+        targetWidthPercent = 0.40f; // Gigante
         hpMultiplier = 5.0f;
-        fireRateBase = 0.5f;
+        fireRateBase = 0.5f; // Ametralladora
     }
 
-    // Aplicar atributos
-    health = 1000.f * hpMultiplier;
+    // Aplicar los atributos calculados
+    setHealth(1000.f * hpMultiplier);
     setFireRate(fireRateBase);
 
-    if (sprite)
-    {
-        float textureWidth = sprite->getLocalBounds().size.x;
-        float desiredWidth = screenWidth * targetWidthPercent;
+    // 2. Config visual
+    // Esto es para escalar el boss a la pantalla
+    float textureWidth = sprite.getLocalBounds().size.x;
+    float desiredWidth = screenWidth * targetWidthPercent;
+    float scaleFactor = desiredWidth / textureWidth;
 
-        float scaleFactor = desiredWidth / textureWidth;
+    sprite.setScale({scaleFactor, scaleFactor});
 
-        sprite->setScale({scaleFactor, scaleFactor});
-        auto bounds = sprite->getLocalBounds();
-        sprite->setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
-    }
-}
-
-void BorgCube::update(float dt)
-{
-    Enemy::update(dt);
+    // Centramos el origen para que las balas salgan del centro y rote bien (Change prox act *****)
+    auto bounds = sprite.getLocalBounds();
+    sprite.setOrigin({bounds.size.x / 2.f, bounds.size.y / 2.f});
 }
 
 void BorgCube::movePattern(float dt)
 {
     sf::Vector2f pos = getPosition();
 
-    float halfWidth = 50.f;
-    if (sprite)
-        halfWidth = sprite->getGlobalBounds().size.x / 2.f;
+    // Obtenemos el ancho real actual
+    float halfWidth = sprite.getGlobalBounds().size.x / 2.f;
 
-    // ENTRADA TRIUNFAL
+    // FASE 1: Baja lento para imponer miedo borg hasta la pos Y=200
     if (pos.y < 200.f)
     {
         setPosition({pos.x, pos.y + (60.f * dt)});
     }
-    // PATRULLAJE
+    // FASE 2: Patrulla por la pantalla
     else
     {
-        float speedX = 60.f;
+        // Movimiento Horizontal
+        float speedX = 75.f;
         pos.x += speedX * directionX * dt;
 
-        // REBOTE DINÁMICO
-
+        // Rebota en los bordes de la pantalla
         if (pos.x > (screenWidth - halfWidth))
-            directionX = -1;
-        if (pos.x < halfWidth)
-            directionX = 1;
+        {
+            pos.x = screenWidth - halfWidth;
+            directionX = -1; // Ir izquierda
+        }
+        else if (pos.x < halfWidth)
+        {
+            pos.x = halfWidth;
+            directionX = 1; // Ir derecha
+        }
 
+        // Usamos una funcion Seno para que flote suavemente arriba y abajo
         hoverTime += dt;
         float hoverY = std::sin(hoverTime * 2.f) * 0.5f;
 
+        // Fijamos la Y base en 200 teniendo en cuenta la oscilacion
         setPosition({pos.x, 200.f + hoverY});
     }
 }

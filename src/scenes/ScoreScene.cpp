@@ -78,7 +78,7 @@ void ScoreScene::loadAndSortScores()
         file.close();
     }
 
-    // 2. Ordenamiento (use una lambda para ordenar de mayor a menor)
+    // 2. Ordenamiento (lambda para ordenar de mayor a menor)
     std::sort(entries.begin(), entries.end(), [](const ScoreEntry &a, const ScoreEntry &b)
               { return a.points > b.points; });
 
