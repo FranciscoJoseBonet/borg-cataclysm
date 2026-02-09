@@ -1,183 +1,118 @@
+---
+
 # Borg Cataclysm 🚀
 
-Trabajo Final – Programación Orientada a Objetos  
-FICH – Universidad Nacional del Litoral
+**Trabajo Final – Programación Orientada a Objetos** **FICH – Universidad Nacional del Litoral (UNL)**
 
 ---
 
 ## 📘 Descripción General
 
-**Borg Cataclysm** es un videojuego 2D estilo arcade, desarrollado en **C++ con SFML**, como **Trabajo Práctico Final de la materia Programación Orientada a Objetos (POO)** de la **FICH – UNL**.
+**Borg Cataclysm** es un videojuego de acción 2D estilo bullet-hell desarrollado en **C++** utilizando la biblioteca **SFML 3.0**. Este proyecto representa el trabajo integrador final para la materia **Programación Orientada a Objetos**.
 
-El juego está ambientado en el universo de **Star Trek: Deep Space Nine (DS9)**. El jugador debe defender la estación **DS9** enfrentando oleadas crecientes de enemigos cardassianos, Jem'Hadar, fundadores y Maquis.
-
-Este proyecto cumple con las premisas establecidas en las **Consignas del Trabajo Final de POO**:
-
-- Diseño orientado a objetos (clases, herencia, polimorfismo).
-- Separación entre lógica, presentación y entidades del modelo.
-- Manejo obligatorio de archivos (sistema de puntuaciones).
-- Desarrollo completo en C++ con biblioteca gráfica (SFML).
+El jugador toma el mando de una nave de la Federación en una misión desesperada para contener la invasión de los **Borg**. A través de una estética inspirada en el sistema **LCARS** de Star Trek, el juego desafía al usuario a sobrevivir oleadas de enemigos con patrones de movimiento dinámicos y enfrentamientos contra un jefe masivo (Borg Cube).
 
 ---
 
-## 🕹️ Características Principales
+## 🧬 Implementación de Programación Orientada a Objetos
 
-### ✔ Shooter 2D arcade retro
+El núcleo del proyecto ha sido diseñado siguiendo los pilares de la **POO** para garantizar escalabilidad y modularidad:
 
-- Acción rápida, estética pixel art, controles simples.
-- Movimiento libre en 2D dentro del 20% inferior de la pantalla.
+- **Herencia y Polimorfismo:** Implementación de una jerarquía de clases robusta para entidades. El uso de métodos virtuales (`update`, `draw`, `movePattern`) permite que el motor trate a cualquier objeto (Naves, Enemigos, Proyectiles) de forma genérica.
+- **Encapsulamiento:** Gestión estricta de estados internos y visibilidad de miembros, utilizando modificadores `protected` para facilitar la extensión en subclases y `private` para la seguridad de datos.
+- **Patrones de Diseño:**
+- **Singleton:** Aplicado en `UITheme` para centralizar recursos visuales (fuentes y colores LCARS) y evitar redundancia en memoria, un gestor de estilos casero.
+- **Strategy / Callbacks:** Uso de `std::function` y lambdas para desacoplar el sistema de armas del motor de nivel, permitiendo una comunicación eficiente sin dependencias circulares.
 
-### ✔ Sistema de vidas
-
-- El jugador inicia con **3 vidas por run**.
-- Al morir pierde potenciadores y reaparece con 2.5s de invulnerabilidad.
-- Las vidas pueden aparecer como power‑ups (muy raras).
-
-### ✔ Oleadas infinitas
-
-- Niveles 1 y 2 son predefinidos.
-- A partir del nivel 3, se generan **oleadas procedurales infinitas**.
-- La dificultad escala automáticamente (velocidad, daño, cantidad).
-- El jugador progresa mientras defiende DS9.
-
-### ✔ Armas y proyectiles
-
-- Cada nave puede equipar **2 armas**, con cooldown independiente.
-- La nave también escala automáticamente (velocidad, daño, vida).
-- Potenciadores temporales: doble disparo, velocidad, escudo, daño, etc.
-
-### ✔ Sistema de puntuación y archivos
-
-- Al finalizar la run se calcula la puntuación.
-- Se guarda en un archivo local la tabla **Top 10**.
-- Si el jugador entra en el Top 10, se le pide un nombre y se guarda registro.
+- **Composición:** Las naves tienen armas (clase `Weapon`), permitiendo el desacoplamiento de componentes de juego.
 
 ---
 
-## 📂 Estructura del Proyecto (Actual)
+## 🕹️ Características Técnicas Principales
 
-Acorde a la estructura actual del repositorio: (posteriormente se agregarán las escenas GameOver y Score como asi tambien las clases faltantes)
+- **Motor de Renderizado Optimizado:** Uso de `sf::VertexArray` para el fondo de estrellas dinámico, permitiendo procesar cientos de partículas con un costo mínimo de CPU/GPU.
+- **Sistema de Animación:** Clase `Explosion` basada en spritesheets con gestión automática de ciclo de vida.
+- **Interfaz LCARS:** HUD avanzado que monitorea en tiempo real la integridad estructural (HP), escudos y estados de power-ups.
+- **Dificultad Progresiva:** Sistema de oleadas donde la velocidad, daño y frecuencia de disparo de los Borg escalan según el progreso del jugador.
+- **Persistencia de Datos:** Manejo de archivos para el guardado y lectura del **Top 10 de mejores puntajes**.
+
+---
+
+## 📂 Estructura del Proyecto
 
 ```
-assets/             # Recursos del juego (imágenes, sonidos, fuentes)
-  ├── fonts/
-  ├── img/
-  └── sound/
-
 src/
-  ├── core/
-  │     │
-  │     ├── entities/
-  │     │     ├── Entity.h
-  │     │     ├── SpaceShip.h
-  │     │     └── SpaceShip.cpp
-  │     │
-  │     ├── projectiles/
-  │     │     ├── LaserProjectile.h
-  │     │     └── MissileProjectile.h
-  │     │
-  │     ├── scenes/
-  │     │     ├── Scene.h / Scene.cpp
-  │     │     ├── MenuScene.h / MenuScene.cpp
-  │     │     ├── GameScene.h / GameScene.cpp
-  │     │     ├── GameOverScene.* (a agregar)
-  │     │     └── ScoreScene.* (a agregar)
-  │     │
-  │     └── weapons/
-  │           ├── Weapon.h
-  │           └── Weapon.cpp
-  │
-  └── main.cpp
+ ├── core/              # Bucle principal y gestión de la sesión
+ ├── data/              # Gestion de DTO y DAO para compilacion de las naves de forma dinamica
+ ├── effects/           # Clase Explosion basada en spritesheets con gestión automática de ciclo de vida
+ ├── environment/       # Fondo de estrellas dinámico usando sf::VertexArray
+ ├── entities/          # Jerarquía de objetos del juego
+ │    ├── items/        # Power-ups (Health, Shield, Weapon Upgrade)
+ │    ├── ships/        # Jugador y lógica de naves
+ │    │    └── enemies/ # "IA": Scouts, Explorers y Borg Cubes (Bosses)
+ │    └── projectiles/  # Tipos de munición (Laser, Misiles, Curvos)
+ ├── managers/          # Manejo de recursos (Texturas/Sonido) y niveles
+ ├── scenes/            # Máquina de estados: Menú, Selección, Juego, Scores (se gestiona desde core)
+ ├── ui/                # HUD y UITheme (Sistema LCARS)
+ ├── weapons/           # Clases de armas y sistema de disparo
+ └── main.cpp           # Punto de entrada
 
-README.md
 ```
-
-(Carpetas **build**, **bin**, **tools** y **.vscode** se excluyen del esquema oficial ya que son de uso local y no forman parte del proyecto fuente.)
-
----
-
-## 🧬 Arquitectura OO
-
-El proyecto implementa un diseño orientado a objetos completo:
-
-### 🧱 Entidades
-
-- **Entity** (abstracta)
-  - Hereda de `sf::Drawable` y `sf::Transformable`.
-  - Proporciona posición, vida, tipo y estado “alive”.
-- **SpaceShip** (jugador)
-- **Projectile**
-- **Weapon**
-- **Enemy** (a integrar con subclases según facciones)
-
-### 🎭 Sistema de Escenas
-
-Basado en polimorfismo y composición:
-
-- `Scene` (abstracta)
-- `MenuScene`
-- `ShipSelectScene`
-- `GameScene`
-- `GameOverScene`
-- `ScoreScene`
-
-### 📈 Sistema de Oleadas
-
-A integrar según GDD:
-
-- `Wave`
-- `WaveGenerator`
-
----
 
 ## 🏗️ Instalación y Compilación
 
 ### Requisitos
 
-- C++17 o superior
-- SFML 3.0.0
-- CMake (opcional)
+- **Compilador:** C++17 o superior.
+- **Biblioteca:** [SFML 3.0.0](https://www.google.com/search?q=https://www.sfml-dev.org/download/3.0.0/) (Requerido).
+- **Herramienta de Construcción:** [CMake](https://cmake.org/).
 
-### Compilación (Linux/Mac/Windows) - Generacion del ejecutable
+### Pasos para Compilar
 
 ```bash
+# 1. Clonar el repositorio
 git clone https://github.com/FranciscoJoseBonet/borg-cataclysm.git
 cd borg-cataclysm
+
+# 2. Configurar build con CMake
 mkdir build && cd build
 cmake ..
+
+# 3. Compilar
 cmake --build .
-./borg-cataclysm
+
+# 4. Ejecutar
+./BorgCataclysm
+
 ```
 
----
-
-## 📄 Consignas Académicas Cumplidas (TP Final – POO FICH-UNL)
-
-Este proyecto cumple con los siguientes puntos establecidos en las **Consignas del Trabajo Final**:
-
-- ✔ Desarrollo en **C++** con **orientación a objetos** real.
-- ✔ Separación entre modelo, lógica y presentación.
-- ✔ Uso de biblioteca gráfica (SFML).
-- ✔ Uso obligatorio de **archivos** (puntuaciones persistentes).
-- ✔ Proyecto suficientemente complejo para defensa oral individual.
-- ✔ Permite mostrar herencia, polimorfismo, encapsulamiento y modularidad.
+_Nota: El proceso de compilación copia automáticamente la carpeta `assets` al directorio de ejecución mediante scripts de CMake._
 
 ---
 
-## ⭐ Objetivo del Jugador
+## 📄 Consignas Académicas
 
-Sobrevivir la mayor cantidad de niveles posibles, mejorar su nave mediante potenciadores, derrotar enemigos de diversas facciones y alcanzar un puntaje histórico mientras defiende **Deep Space Nine**.
+Requisitos para la defensa del TP Final:
+
+- ✅ **Modularidad:** Separación clara entre lógica de negocio y presentación.
+- ✅ **Archivos:** Implementación de persistencia para el sistema de High Scores.
+- ✅ **Complejidad:** Implementación de colisiones, gestión de memoria dinámica y patrones de diseño.
+- ✅ **SFML:** Uso integral de la biblioteca para gráficos y eventos.
+
+---
+
+## Aclaración importante sobre assets
+
+**Fuentes:** Se han utilizado fuentes gratuitas disponibles en línea para lograr la estética LCARS. Estas fuentes se incluyen en la carpeta `assets/fonts/` y se han verificado que son de uso libre.
+
+**Imagenes:** Se han creado sprites personalizados para las naves, enemigos y efectos visuales utilizando Nano Banana de Gemini. Estas imágenes se encuentran en `assets/images/`.
 
 ---
 
 ## 👨‍🚀 Autor
 
-**Francisco José Bonet**  
-FICH – Universidad Nacional del Litoral  
-Materia: Programación Orientada a Objetos
+**Francisco José Bonet** Estudiante de Ingeniería - FICH (UNL)
+
+**Materia:** Programación Orientada a Objetos
 
 ---
-
-## 📄 Licencia
-
-Proyecto académico

@@ -5,6 +5,5 @@
 *.exe
 *.o
 /CMakeFiles/
-CMakeLists.txt
 CMakeCache.txt
 generarpdf.py
