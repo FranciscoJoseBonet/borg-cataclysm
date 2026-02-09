@@ -19,7 +19,7 @@ ScoreScene::ScoreScene(sf::RenderWindow &w)
     view.setCenter({baseResolution.x / 2.f, baseResolution.y / 2.f});
 
     // Carga de Fondo con manejo de errores basico
-    if (!backgroundTexture.loadFromFile("../assets/img/GAMEOVER_BG.jpg"))
+    if (!backgroundTexture.loadFromFile("assets/img/GAMEOVER_BG.jpg"))
     {
         std::cerr << "Warning: No background texture found.\n";
     }

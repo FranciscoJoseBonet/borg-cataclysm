@@ -22,7 +22,7 @@ GameOverScene::GameOverScene(sf::RenderWindow &w, int finalScore)
     view.setCenter({baseResolution.x / 2.f, baseResolution.y / 2.f});
 
     // Cargamos el fondo
-    if (!backgroundTexture.loadFromFile("../assets/img/GAMEOVER_BG.jpg"))
+    if (!backgroundTexture.loadFromFile("assets/img/GAMEOVER_BG.jpg"))
     {
         std::cerr << "Warning: No background texture found.\n";
     }

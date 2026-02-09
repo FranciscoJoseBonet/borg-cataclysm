@@ -106,7 +106,7 @@ GameScene::GameScene(sf::RenderWindow &w)
                                      {
                                          score += 100;
 
-                                         const sf::Texture &expTex = resources.getTexture("../assets/img/Ships/SS_Klingon_Destruction.png");
+                                         const sf::Texture &expTex = resources.getTexture("assets/img/Ships/SS_Klingon_Destruction.png");
                                          int cols = 2;
                                          int rows = 3;
                                          int frameWidth = expTex.getSize().x / cols;
@@ -133,10 +133,10 @@ GameScene::GameScene(sf::RenderWindow &w)
         float scale = 1.0f; float duration = 0.2f;
 
         if (type == ProjectileType::MISSILE) {
-            texturePath = "../assets/img/Shots/Missile/SS_Impact_Missile.png"; 
+            texturePath = "assets/img/Shots/Missile/SS_Impact_Missile.png"; 
             cols = 8; rows = 1; scale = 1.2f; duration = 0.3f; 
         } else {
-            texturePath = "../assets/img/Shots/Laser/SS_Impact_Laser.png";
+            texturePath = "assets/img/Shots/Laser/SS_Impact_Laser.png";
             cols = 6; rows = 1; scale = 0.6f; duration = 0.2f;
         }
 

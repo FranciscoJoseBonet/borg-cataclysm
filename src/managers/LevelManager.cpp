@@ -103,13 +103,13 @@ void LevelManager::spawnScoutWave(int count)
 
     std::uniform_int_distribution<int> distArchetype(0, 100);
 
-    const sf::Texture &scoutTex = resources.getTexture("../assets/img/ships/Klingon_Ship_1.png");
+    const sf::Texture &scoutTex = resources.getTexture("assets/img/ships/Klingon_Ship_1.png");
 
     // Definimos el comportamiento de disparo
     auto enemyFireAction = [this](ProjectileType type, const sf::Vector2f &pos, int dmg, float speed)
     {
         sf::Vector2f direction(0.f, 1.f); // Dispara recto hacia abajo
-        const sf::Texture &tex = resources.getTexture("../assets/img/Shots/Laser/Klingon_Shot_1.png");
+        const sf::Texture &tex = resources.getTexture("assets/img/Shots/Laser/Klingon_Shot_1.png");
 
         auto &p = entityManager.add<LaserProjectile>(direction, speed, dmg, tex, Faction::Alien);
         p.setPosition(pos);
@@ -168,11 +168,11 @@ void LevelManager::spawnExplorerWave(int count)
     std::uniform_real_distribution<float> distSpeed(70.f, 100.f);
     std::uniform_real_distribution<float> distFireRate(2.5f, 5.0f);
 
-    const sf::Texture &romulanTex = resources.getTexture("../assets/img/ships/Romulan_Explorer.png");
+    const sf::Texture &romulanTex = resources.getTexture("assets/img/ships/Romulan_Explorer.png");
 
     auto romulanFireAction = [this](ProjectileType type, const sf::Vector2f &pos, int dmg, float speed)
     {
-        const sf::Texture &tex = resources.getTexture("../assets/img/Shots/Missile/Romulan_Shot_2.png");
+        const sf::Texture &tex = resources.getTexture("assets/img/Shots/Missile/Romulan_Shot_2.png");
         sf::Vector2f dir(0.f, 1.f);
 
         // Parametros para el proyectil curvo (Dispara siguiendo una funcion senoidal)
@@ -206,7 +206,7 @@ void LevelManager::spawnExplorerWave(int count)
 void LevelManager::spawnBossLevel(int stage)
 {
     enemiesToSpawn = 0; // El Boss cuenta como todo el nivel por ahora
-    const sf::Texture &bossTex = resources.getTexture("../assets/img/ships/Borg_Cube.png");
+    const sf::Texture &bossTex = resources.getTexture("assets/img/ships/Borg_Cube.png");
 
     float startX = worldBounds.x / 2.f;
     float startY = -300.f;
@@ -216,7 +216,7 @@ void LevelManager::spawnBossLevel(int stage)
     // Logica compleja de disparo del Boss (le apunta al player por eso el manager necesita un puntero al player)
     auto bossFireAction = [this, stage](ProjectileType type, const sf::Vector2f &pos, int dmg, float speed)
     {
-        const sf::Texture &tex = resources.getTexture("../assets/img/Shots/Missile/Borg_Shot_3.png");
+        const sf::Texture &tex = resources.getTexture("assets/img/Shots/Missile/Borg_Shot_3.png");
         sf::Vector2f targetDir(0.f, 1.f);
 
         // 1. Calculo de vector unitario hacia el jugador
@@ -297,22 +297,22 @@ void LevelManager::trySpawnPowerUp(sf::Vector2f position)
     switch (type)
     {
     case PowerUpType::SHIELD:
-        texturePath = "../assets/img/PowerUps/PU_Extra_Shield.png";
+        texturePath = "assets/img/PowerUps/PU_Extra_Shield.png";
         break;
     case PowerUpType::DOUBLE_SHOT:
-        texturePath = "../assets/img/PowerUps/PU_Double_Shot.png";
+        texturePath = "assets/img/PowerUps/PU_Double_Shot.png";
         break;
     case PowerUpType::RAPID_FIRE:
-        texturePath = "../assets/img/PowerUps/PU_Rapid_Fire.png";
+        texturePath = "assets/img/PowerUps/PU_Rapid_Fire.png";
         break;
     case PowerUpType::INVINCIBILITY:
-        texturePath = "../assets/img/PowerUps/PU_Invencibility.png";
+        texturePath = "assets/img/PowerUps/PU_Invencibility.png";
         break;
     case PowerUpType::HEAL:
-        texturePath = "../assets/img/PowerUps/PU_Heal.png";
+        texturePath = "assets/img/PowerUps/PU_Heal.png";
         break;
     case PowerUpType::EXTRA_LIFE:
-        texturePath = "../assets/img/PowerUps/PU_Extra_Life_Rainbow.png";
+        texturePath = "assets/img/PowerUps/PU_Extra_Life_Rainbow.png";
         break;
     }
 
