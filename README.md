@@ -1,9 +1,7 @@
 ---
-
 # Borg Cataclysm 🚀
 
-**Trabajo Final – Programación Orientada a Objetos** **FICH – Universidad Nacional del Litoral (UNL)**
-
+Trabajo Final – Programación Orientada a Objetos** **FICH – Universidad Nacional del Litoral (UNL)
 ---
 
 ## 📘 Descripción General
