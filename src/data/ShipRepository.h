@@ -2,8 +2,7 @@
 #include <vector>
 #include "ShipData.h"
 
-// Aca simplemente esta guardada la informacion de las naves para generar el archivo de compilacion
-// es toda informacio que no ponemos en archivos porque es mas facil verlo desde acá en este pseudo json
+// Aca simplemente esta estructurada la informacion de las naves y de sus assets necesarios para el juego
 
 class ShipRepository
 {

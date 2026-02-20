@@ -84,7 +84,7 @@ GameOverScene::GameOverScene(sf::RenderWindow &w, int finalScore)
 
 void GameOverScene::saveScoreToFile()
 {
-    // Abrimos en modo append para agregar al final sin borrar lo anterior
+    // Abrimos en modo append
     std::ofstream file("scores.txt", std::ios::app);
     if (file.is_open())
     {

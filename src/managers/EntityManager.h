@@ -7,7 +7,7 @@
 
 // Esta es una clase encargada de tener todas las entidades del juego en un solo lugar
 // Se encarga de actualizarlas, dibujarlas y borrarlas cuando mueren
-// La proxima feature del juego será la implementacion de la separacion de estas clases para no tenerlas todas en el mismo vector
+
 class EntityManager
 {
 private:
