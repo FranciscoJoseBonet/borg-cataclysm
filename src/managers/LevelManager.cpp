@@ -22,18 +22,21 @@ LevelManager::LevelManager(EntityManager &em, ResourceManager &rm, sf::Vector2f 
 
 void LevelManager::update(float dt)
 {
-    // 1. Chequeo de Condicion de Victoria de Oleada (banderita de si murieron todos los enemigos)
+    // 1. Chequeo de Condicion de Victoria de Oleada (bandera de si murieron todos los enemigos)
     bool anyEnemyAlive = false;
     auto &allEntities = entityManager.getEntities();
 
     // Recorremos entidades para ver si queda algun Enemigo vivo
-    // Usamos dynamic_cast como filtro del vector de entidades
     for (const auto &ent : allEntities)
     {
-        if (ent->isAlive() && dynamic_cast<Enemy *>(ent.get()) != nullptr)
+        if (ent->isAlive() && ent->getFaction() == Faction::Alien)
         {
-            anyEnemyAlive = true;
-            break;
+            std::string t = ent->getType();
+            if (t != "Laser" && t != "Missile" && t != "Projectile")
+            {
+                anyEnemyAlive = true;
+                break;
+            }
         }
     }
 

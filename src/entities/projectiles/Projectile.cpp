@@ -29,6 +29,13 @@ void Projectile::update(float deltaTime)
 {
     // Movimiento vectorial simple, direccion * velocidad * tiempo
     move(direction * speed * deltaTime);
+
+    sf::Vector2f pos = getPosition();
+
+    if (pos.y < -1000.f || pos.y > 3000.f || pos.x < -1000.f || pos.x > 3000.f)
+    {
+        destroy();
+    }
 }
 
 void Projectile::draw(sf::RenderTarget &target, sf::RenderStates states) const
